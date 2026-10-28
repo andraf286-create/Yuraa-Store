@@ -1,0 +1,7 @@
+{
+  "name": "Yuraa Store - Akun Premium Harga Terbaik",
+  "description": "Aman, cepat, bergaransi, dan terpercaya hanya di Yuraa Store. Beli akun premium Netflix, Spotify, Prime Video, Disney+, Canva, dan pulsa dengan sistem pembayaran terintegrasi otomatis.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
