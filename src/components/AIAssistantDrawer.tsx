@@ -16,6 +16,121 @@ interface AIAssistantDrawerProps {
   onSelectProductByName?: (productName: string) => void;
 }
 
+export const getLocalAssistantAnswer = (query: string): string => {
+  const q = query.toLowerCase();
+
+  // 1. Sharing vs Private
+  if (
+    q.includes('sharing') ||
+    q.includes('private') ||
+    q.includes('beda') ||
+    q.includes('perbedaan') ||
+    q.includes('profil')
+  ) {
+    return `Halo Kak! 🐼 Berikut perbedaan detail antara **Sharing Profile** dan **Private Profile** di Yuraa Store:
+
+👥 **1. SHARING PROFILE**:
+• 1 profil digunakan oleh 2 orang pengguna secara bergantian.
+• **Kelebihan**: Harga sangat murah & hemat kantong (contoh Netflix UHD 4K cuma **Rp 28.500/bulan**!).
+• **Kualitas**: Kualitas gambar tetap maksimal **4K Ultra HD + HDR**.
+• **Catatan**: Karena dipakai berdua, ada kemungkinan terjadi *limit screen* (peringatan terlalu banyak layar) jika diputar bersamaan di jam yang sama.
+
+👤 **2. PRIVATE PROFILE**:
+• 1 profil khusus hanya untuk Kakak seorang (eksklusif 1 pengguna).
+• **Kelebihan**: Jauh lebih nyaman, bebas pasang PIN profil sendiri, riwayat tontonan pribadi aman, dan **anti limit screen** (bebas nonton kapan saja!).
+• **Harga**: Mulai **Rp 47.500/bulan**.
+
+🛡️ Keduanya bergaransi resmi **100% Full Replace** dari Yuraa Store ya Kak! Kakak tertarik ambil yang mana? 😊`;
+  }
+
+  // 2. Roblox & Robux Top Up
+  if (
+    q.includes('robux') ||
+    q.includes('roblox') ||
+    q.includes('gamepass') ||
+    q.includes('game')
+  ) {
+    return `Halo Kak! 🎮 Top Up **Robux di Yuraa Store** super kilat hanya perlu **±5 menit** aja (nggak perlu nunggu 5 hari baru masuk!).
+
+Tersedia 3 metode pilihan resmi & aman:
+🛡️ **1. Robux Via Link Gamepass (HANYA USERNAME)**:
+• Tidak butuh password sama sekali! 100% aman anti hack.
+• Pajak resmi 30% ditanggung toko, Robux bersih masuk ke akun!
+• Harga: 500 R$ (Rp 35.500) s/d 5.000 R$ (Rp 363.000).
+
+⚡ **2. Robux Via Login Kilat (Username & Pw)**:
+• Langsung masuk akun tanpa repot bikin gamepass.
+• Sandi dienkripsi & langsung dihapus otomatis setelah pengisian.
+• Harga: 500 R$ (Rp 39.500) s/d 5.000 R$ (Rp 377.000).
+
+⭐ **3. Roblox Subs Premium**:
+• Dapatkan badge Premium resmi di avatar, bonus 10% Robux extra tiap belanja game, dan benefit trading!
+• 500 R$ (Rp 50.000) | 1000 R$ (Rp 110.000) | 2200 R$ (Rp 209.000).
+
+Pembayaran via **DANA 08984436849** atau scan QRIS. Robux langsung kami proses dalam 5 menit! ⚡`;
+  }
+
+  // 3. Netflix
+  if (q.includes('netflix') || q.includes('nonton') || q.includes('film')) {
+    return `Halo Kak! 🎬 Untuk **Netflix Premium UHD 4K**, kami ada paket:
+• **Sharing Profile 1 Bulan**: Rp 28.500 (hemat, 4K Ultra HD)
+• **Private Profile 1 Bulan**: Rp 47.500 (khusus 1 user, bebas limit screen)
+• **Sharing Profile 3 Bulan**: Rp 82.500 (hemat 3 bulan nonstop)
+• **Full Akun Private (4 Screen)**: Rp 139.000 (bisa bikin 5 profil & nonton 4 layar bersamaan)
+
+Semua bergaransi full replace dan support di Smart TV, HP, Laptop, & Tablet! Mau langsung order Kak? 🐼`;
+  }
+
+  // 4. Pembayaran & DANA
+  if (
+    q.includes('dana') ||
+    q.includes('bayar') ||
+    q.includes('pembayaran') ||
+    q.includes('rekening') ||
+    q.includes('qris') ||
+    q.includes('transfer')
+  ) {
+    return `Halo Kak! 💳 Pembayaran di Yuraa Store sangat mudah:
+• **DANA**: \`${STORE_INFO.danaNumber}\` (A/N ${STORE_INFO.danaName})
+• **QRIS Resmi**: Scan QRIS merchant **${STORE_INFO.qrisMerchantName}** (NMID: \`${STORE_INFO.qrisNmid}\`). Bisa dibayar via semua Bank (BCA, Mandiri, BRI, BNI) & e-wallet (GoPay, OVO, ShopeePay, DANA).
+
+Setelah transfer, klik tombol **"Kirim Bukti Pembayaran ke WhatsApp"** di website atau hubungi WA **${STORE_INFO.whatsappDisplay}** agar pesanan langsung diverifikasi & dikirimkan secepat kilat! ⚡`;
+  }
+
+  // 5. Spotify & Musik
+  if (q.includes('spotify') || q.includes('lagu') || q.includes('musik')) {
+    return `Untuk **Spotify Premium** kami ada:
+• **Family Invite 1 Bulan**: Rp 18.500 (Invite resmi ke email pribadi)
+• **Individual Plan 1 Bulan**: Rp 28.000
+
+Bebas iklan, download lagu offline, kualitas audio Extreme 320 kbps! 🎵`;
+  }
+
+  // 6. Canva & Desain
+  if (q.includes('canva') || q.includes('desain')) {
+    return `🎨 **Canva Pro** di Yuraa Store:
+• 1 Bulan: Rp 9.000
+• 1 Tahun Lifetime: Rp 29.000
+
+Langsung invite ke email pribadi Kakak, riwayat desain lama tetap aman & semua template pro + AI background remover aktif!`;
+  }
+
+  // 7. Garansi & Kendala
+  if (q.includes('garansi') || q.includes('aman') || q.includes('legal') || q.includes('banned') || q.includes('kendala') || q.includes('error')) {
+    return `🛡️ **GARANSI 100% Full Replace** di Yuraa Store Kak!
+Semua akun dan top up Robux kami legal & resmi dibeli melalui jalur official. Jika ada kendala login, limit screen, atau error sebelum masa aktif habis, silakan hubungi WhatsApp kami di **${STORE_INFO.whatsappDisplay}**, tim admin langsung bantu ganti baru tanpa ribet! 🐼`;
+  }
+
+  return `Halo Kak! 🐼 Saya **Yuraa Panda AI**, asisten jualan resmi Yuraa Store.
+Ada yang bisa saya bantu carikan hari ini?
+• Tanya perbedaan **Sharing Profile vs Private Profile**
+• Top Up **Robux kilat 5 menit** (Via Gamepass / Via Login / Subs Premium)
+• Rekomendasi akun streaming (Netflix, Spotify, Prime Video, Disney+)
+• Cara pembayaran via **DANA ${STORE_INFO.danaNumber}** atau scan QRIS
+
+Silakan tanyakan apa saja ya Kak, saya siap menjawab dengan jelas! 😊`;
+};
+
 export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
   isOpen,
   onClose,
@@ -27,12 +142,13 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
       role: 'assistant',
       content: `Halo Kak! 🐼 Saya **Yuraa Panda AI**, asisten jualan resmi Yuraa Store.
 
-Ada yang bisa saya bantu carikan hari ini?
-• Butuh rekomendasi akun streaming (Netflix, Prime, Disney+)?
-• Mau tahu perbedaan akun Sharing vs Private?
-• Cara pembayaran instan via **DANA 08984436849** atau QRIS?
+Ada yang bisa saya bantu hari ini?
+• Tanya **Perbedaan Sharing Profile vs Private Profile**
+• Top Up **Robux Roblox kilat 5 menit** (Via Gamepass / Via Login / Subs Premium)
+• Rekomendasi akun Netflix UHD 4K, Spotify, Canva Pro
+• Info pembayaran via **DANA 08984436849** atau QRIS
 
-Tanyakan apa saja ya Kak! 😊`,
+Tanyakan apa saja pertanyaan atau keluhan Kakak ya! 😊`,
       timestamp: 'Baru saja',
     },
   ]);
@@ -41,8 +157,9 @@ Tanyakan apa saja ya Kak! 😊`,
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const quickPrompts = [
-    'Rekomendasi Netflix UHD 4K',
     'Beda Sharing vs Private profile',
+    'Top Up Robux kilat 5 menit',
+    'Rekomendasi Netflix UHD 4K',
     'Cara bayar via DANA 08984436849',
     'Apakah akun legal & bergaransi?',
     'Paket Canva Pro 1 Tahun',
@@ -70,24 +187,37 @@ Tanyakan apa saja ya Kak! 😊`,
     setLoading(true);
 
     try {
-      const response = await fetch('/api/assistant/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [...messages, userMsg].map((m) => ({
-            role: m.role,
-            content: m.content,
-          })),
-        }),
-      });
+      let replyText = '';
+      try {
+        const response = await fetch('/api/assistant/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [...messages, userMsg].map((m) => ({
+              role: m.role,
+              content: m.content,
+            })),
+          }),
+        });
 
-      if (!response.ok) throw new Error('Network response was not ok');
-      const data = await response.json();
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.reply) {
+            replyText = data.reply;
+          }
+        }
+      } catch (e) {
+        console.warn('API fetch warning, using smart local engine:', e);
+      }
+
+      if (!replyText) {
+        replyText = getLocalAssistantAnswer(query);
+      }
 
       const aiMsg: Message = {
         id: `ai-${Date.now()}`,
         role: 'assistant',
-        content: data.reply || 'Halo Kak, ada yang bisa saya bantu lagi seputar akun premium Yuraa Store? 🐼',
+        content: replyText,
         timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
       };
 
@@ -97,7 +227,7 @@ Tanyakan apa saja ya Kak! 😊`,
       const fallbackMsg: Message = {
         id: `ai-err-${Date.now()}`,
         role: 'assistant',
-        content: `Halo Kak! 🐼 Yuraa Store siap melayani Anda. Untuk memesan langsung, silakan pilih produk di katalog dan transfer ke DANA \`${STORE_INFO.danaNumber}\` (A/N ${STORE_INFO.danaName}) atau hubungi WhatsApp kami di ${STORE_INFO.whatsappDisplay} ya!`,
+        content: getLocalAssistantAnswer(query),
         timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages((prev) => [...prev, fallbackMsg]);

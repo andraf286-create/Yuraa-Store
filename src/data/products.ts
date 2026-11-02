@@ -2,6 +2,9 @@ import { Product } from '../types';
 
 export const STORE_INFO = {
   name: 'Yuraa Store',
+  qrisMerchantName: 'ProdukDigitalPremium...',
+  qrisNmid: 'ID1026590167098',
+  qrisTerminal: 'A01',
   danaNumber: '08984436849',
   danaName: 'YURAA STORE / DANA',
   whatsappNumber: '628984436849',
@@ -10,6 +13,193 @@ export const STORE_INFO = {
 };
 
 export const PRODUCTS_DATA: Product[] = [
+  {
+    id: 'roblox-gamepass',
+    name: 'Robux Via Link Gamepass',
+    category: 'game',
+    categoryLabel: 'Top Up Game & Robux',
+    price: 35500,
+    originalPrice: 45000,
+    soldCount: 5410,
+    stockCount: 999,
+    isTrending: true,
+    deliveryType: 'instant',
+    deliveryTimeEstimate: 'Proses ±5 Menit',
+    brandColor: '#00E676',
+    iconType: 'robux_gamepass',
+    badgeLabel: 'HANYA USERNAME',
+    description: `🎮 Roblox - Robux Via Link Gamepass
+Store: Yuraa Store
+
+Top up robux nggak perlu nunggu sampai 5 hari baru masuk, Top up di kami hanya perlu 5 menit aja!
+
+✅ proses lebih cepat
+✅ harga lebih murah
+✅ HANYA BUTUH USERNAME (Tidak perlu password/kata sandi)
+✅ 100% Aman & Legal Anti Banned
+✅ Pajak Gamepass 30% ditanggung toko (Robux bersih masuk sesuai pesanan)
+
+📋 DAFTAR HARGA ROBUX VIA LINK GAMEPASS:
+• 500 R$ : Rp 35.500
+• 700 R$ : Rp 47.500
+• 1000 R$ : Rp 67.000
+• 1250 R$ : Rp 86.000
+• 1500 R$ : Rp 95.250
+• 2000 R$ : Rp 137.000
+• 2500 R$ : Rp 159.500
+• 3000 R$ : Rp 203.250
+• 4000 R$ : Rp 291.250
+• 5000 R$ : Rp 363.000
+
+📌 CARA ORDER:
+1. Pilih nominal Robux yang diinginkan
+2. Masukkan Username Roblox Anda (tanpa password)
+3. Buat gamepass di akun Roblox sesuai harga nominal yang diarahkan
+4. Lakukan pembayaran via DANA atau QRIS
+5. Robux langsung dikirim kilat dalam 5 menit!`,
+    features: [
+      'HANYA USERNAME (TANPA PASSWORD APAPUN)',
+      'PROSES KILAT ±5 MENIT LANGSUNG SELESAI',
+      'PAJAK 30% RESMI SUDAH DITANGGUNG TOKO',
+      '100% LEGAL & AMAN DARI BANNED SYSTEM'
+    ],
+    rules: [
+      'Pastikan username Roblox sudah benar dan aktif',
+      'Pastikan Gamepass / Place diset ke public',
+      'Kirim bukti transfer ke WhatsApp Yuraa Store'
+    ],
+    variants: [
+      { id: 'rbx-gp-500', name: '500 R$ (Via Gamepass)', price: 35500, originalPrice: 45000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 500 Robux' },
+      { id: 'rbx-gp-700', name: '700 R$ (Via Gamepass)', price: 47500, originalPrice: 60000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 700 Robux' },
+      { id: 'rbx-gp-1000', name: '1000 R$ (Via Gamepass)', price: 67000, originalPrice: 85000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 1.000 Robux' },
+      { id: 'rbx-gp-1250', name: '1250 R$ (Via Gamepass)', price: 86000, originalPrice: 110000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 1.250 Robux' },
+      { id: 'rbx-gp-1500', name: '1500 R$ (Via Gamepass)', price: 95250, originalPrice: 120000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 1.500 Robux' },
+      { id: 'rbx-gp-2000', name: '2000 R$ (Via Gamepass)', price: 137000, originalPrice: 170000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 2.000 Robux' },
+      { id: 'rbx-gp-2500', name: '2500 R$ (Via Gamepass)', price: 159500, originalPrice: 200000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 2.500 Robux' },
+      { id: 'rbx-gp-3000', name: '3000 R$ (Via Gamepass)', price: 203250, originalPrice: 250000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 3.000 Robux' },
+      { id: 'rbx-gp-4000', name: '4000 R$ (Via Gamepass)', price: 291250, originalPrice: 350000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 4.000 Robux' },
+      { id: 'rbx-gp-5000', name: '5000 R$ (Via Gamepass)', price: 363000, originalPrice: 440000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 5.000 Robux' }
+    ]
+  },
+  {
+    id: 'roblox-login',
+    name: 'Robux Via Login Kilat',
+    category: 'game',
+    categoryLabel: 'Top Up Game & Robux',
+    price: 39500,
+    originalPrice: 50000,
+    soldCount: 3820,
+    stockCount: 999,
+    isTrending: true,
+    deliveryType: 'instant',
+    deliveryTimeEstimate: 'Proses ±5 Menit',
+    brandColor: '#E65100',
+    iconType: 'roblox',
+    badgeLabel: 'BUTUH USERNAME & PW',
+    description: `🎮 Roblox - Robux Via Login Kilat
+Store: Yuraa Store
+
+Top up robux nggak perlu nunggu sampai 5 hari baru masuk, Top up di kami hanya perlu 5 menit aja!
+
+✅ proses lebih cepat
+✅ harga lebih murah
+✅ Langsung masuk ke akun Anda tanpa perlu bikin gamepass
+✅ Password aman terenkripsi & data langsung dibersihkan setelah transaksi selesai
+
+📋 DAFTAR HARGA ROBUX VIA LOGIN:
+• 500 R$ : Rp 39.500
+• 700 R$ : Rp 57.500
+• 1000 R$ : Rp 77.000
+• 1250 R$ : Rp 96.000
+• 1500 R$ : Rp 109.250
+• 2000 R$ : Rp 148.000
+• 2500 R$ : Rp 178.500
+• 3000 R$ : Rp 215.250
+• 4000 R$ : Rp 301.250
+• 5000 R$ : Rp 377.000
+
+📌 CARA ORDER:
+1. Pilih nominal Robux yang diinginkan
+2. Masukkan Username & Password akun Roblox Anda
+3. Jika akun memakai verifikasi 2FA, sertakan backup code atau standby WhatsApp
+4. Selesaikan pembayaran, admin langsung proses dalam 5 menit!`,
+    features: [
+      'LANGSUNG MASUK AKUN TANPA PERLU BIKIN GAMEPASS',
+      'PROSES KILAT ±5 MENIT OLEH ADMIN BERPENGALAMAN',
+      'KATA SANDI DIENKRIPSI & 100% KERAHASIAAN TERJAMIN',
+      'METODE RESMI TOP UP ROBLOX TANPA RISIKO BANNED'
+    ],
+    rules: [
+      'Pastikan Username & Password akun Roblox Anda benar',
+      'Jangan login ke akun selama proses 5 menit pengisian berlangsung',
+      'Konfirmasi ke WhatsApp jika memiliki proteksi PIN orang tua'
+    ],
+    variants: [
+      { id: 'rbx-lg-500', name: '500 R$ (Via Login)', price: 39500, originalPrice: 50000, stock: 999, durationDays: 1, description: 'Via Login • 500 Robux langsung masuk' },
+      { id: 'rbx-lg-700', name: '700 R$ (Via Login)', price: 57500, originalPrice: 70000, stock: 999, durationDays: 1, description: 'Via Login • 700 Robux langsung masuk' },
+      { id: 'rbx-lg-1000', name: '1000 R$ (Via Login)', price: 77000, originalPrice: 95000, stock: 999, durationDays: 1, description: 'Via Login • 1.000 Robux langsung masuk' },
+      { id: 'rbx-lg-1250', name: '1250 R$ (Via Login)', price: 96000, originalPrice: 120000, stock: 999, durationDays: 1, description: 'Via Login • 1.250 Robux langsung masuk' },
+      { id: 'rbx-lg-1500', name: '1500 R$ (Via Login)', price: 109250, originalPrice: 135000, stock: 999, durationDays: 1, description: 'Via Login • 1.500 Robux langsung masuk' },
+      { id: 'rbx-lg-2000', name: '2000 R$ (Via Login)', price: 148000, originalPrice: 180000, stock: 999, durationDays: 1, description: 'Via Login • 2.000 Robux langsung masuk' },
+      { id: 'rbx-lg-2500', name: '2500 R$ (Via Login)', price: 178500, originalPrice: 220000, stock: 999, durationDays: 1, description: 'Via Login • 2.500 Robux langsung masuk' },
+      { id: 'rbx-lg-3000', name: '3000 R$ (Via Login)', price: 215250, originalPrice: 260000, stock: 999, durationDays: 1, description: 'Via Login • 3.000 Robux langsung masuk' },
+      { id: 'rbx-lg-4000', name: '4000 R$ (Via Login)', price: 301250, originalPrice: 360000, stock: 999, durationDays: 1, description: 'Via Login • 4.000 Robux langsung masuk' },
+      { id: 'rbx-lg-5000', name: '5000 R$ (Via Login)', price: 377000, originalPrice: 450000, stock: 999, durationDays: 1, description: 'Via Login • 5.000 Robux langsung masuk' }
+    ]
+  },
+  {
+    id: 'roblox-premium',
+    name: 'Roblox Subs Premium',
+    category: 'game',
+    categoryLabel: 'Top Up Game & Robux',
+    price: 50000,
+    originalPrice: 65000,
+    soldCount: 1640,
+    stockCount: 999,
+    isTrending: false,
+    deliveryType: 'instant',
+    deliveryTimeEstimate: 'Proses ±5 Menit',
+    brandColor: '#7C4DFF',
+    iconType: 'roblox_premium',
+    badgeLabel: 'SUBSCRIPTION RESMI',
+    description: `⭐ Roblox - Subs Premium
+Store: Yuraa Store
+
+Dapatkan ikon lambang Premium di akun Roblox Anda serta jatah Robux bonus tiap pembelian dan hak akses item eksklusif!
+
+Top up robux nggak perlu nunggu sampai 5 hari baru masuk, Top up di kami hanya perlu 5 menit aja!
+
+✅ proses lebih cepat
+✅ harga lebih murah
+✅ Butuh username & Pw untuk aktivasi langganan Premium resmi
+✅ Akses trade item, bonus 10% ekstra Robux di marketplace Roblox
+
+📋 DAFTAR HARGA SUBS PREMIUM:
+• 500 R$ Premium : Rp 50.000
+• 1000 R$ Premium : Rp 110.000
+• 2200 R$ Premium : Rp 209.000
+
+📌 CARA ORDER:
+1. Pilih tier Subscription Premium yang diinginkan
+2. Masukkan Username & Password Roblox
+3. Admin aktivasi subscription premium dalam 5 menit!`,
+    features: [
+      'BADGE ICON PREMIUM RESMI PADA AVATAR & PROFILE',
+      'BONUS 10% LEBIH BANYAK ROBUX PADA SETIAP PEMBELIAN GAME',
+      'HAK AKSES FITUR TRADING & ITEM SPESIAL PREMIUM ONLY',
+      'PROSES KILAT 5 MENIT SELESAI'
+    ],
+    rules: [
+      'Akun tidak boleh sedang terikat langganan Roblox Premium aktif lainnya',
+      'Pastikan password yang dimasukkan valid',
+      'Konfirmasi ke WhatsApp jika ada autentikasi 2 langkah (2FA)'
+    ],
+    variants: [
+      { id: 'rbx-prem-500', name: '500 R$ Premium Subs', price: 50000, originalPrice: 65000, stock: 999, durationDays: 30, description: 'Badge Premium + 500 Robux + Benefit Trade' },
+      { id: 'rbx-prem-1000', name: '1000 R$ Premium Subs', price: 110000, originalPrice: 135000, stock: 999, durationDays: 30, description: 'Badge Premium + 1.000 Robux + Benefit Trade' },
+      { id: 'rbx-prem-2200', name: '2200 R$ Premium Subs', price: 209000, originalPrice: 260000, stock: 999, durationDays: 30, description: 'Badge Premium + 2.200 Robux + Benefit Trade' }
+    ]
+  },
   {
     id: 'netflix-uhd',
     name: 'Netflix Premium UHD 4K',

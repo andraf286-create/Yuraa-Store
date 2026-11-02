@@ -25,8 +25,10 @@ import { FloatingActions } from './components/FloatingActions';
 import { NotFoundPage } from './components/NotFoundPage';
 import { AdminControlPanelModal } from './components/AdminControlPanelModal';
 import { ReferralModal } from './components/ReferralModal';
+import { EmailCredentialsSentToast, EmailToastData } from './components/EmailCredentialsSentToast';
 import { setAppliedReferralCode, getAppliedReferralCode } from './utils/referral';
 import { Gift } from 'lucide-react';
+import { useTheme } from './context/ThemeContext';
 
 import { PRODUCTS_DATA, STORE_INFO } from './data/products';
 import { Product, ProductVariant, CartItem, Order, UserProfile, ProductCategory } from './types';
@@ -61,11 +63,8 @@ function getMergedProducts(): Product[] {
 }
 
 export default function App() {
-  // Theme state: dark / light
-  const [darkMode, setDarkMode] = useState<boolean>(() => {
-    const saved = localStorage.getItem('yuraa_theme');
-    return saved !== null ? saved === 'dark' : true;
-  });
+  // Theme state synced from application ThemeContext
+  const { darkMode, toggleTheme } = useTheme();
 
   // Dynamic products state with Admin restock & soldout persistence
   const [products, setProducts] = useState<Product[]>(() => getMergedProducts());
@@ -94,6 +93,7 @@ export default function App() {
   const [isWarrantyOpen, setIsWarrantyOpen] = useState(false);
   const [isConsultOpen, setIsConsultOpen] = useState(false);
   const [activePaymentOrder, setActivePaymentOrder] = useState<Order | null>(null);
+  const [emailSentToast, setEmailSentToast] = useState<EmailToastData | null>(null);
 
   // Check URL parameter for ?ref=... invitation
   useEffect(() => {
@@ -111,17 +111,7 @@ export default function App() {
     }
   }, []);
 
-  // Initialize theme classes
-  useEffect(() => {
-    const root = document.documentElement;
-    if (darkMode) {
-      root.classList.add('dark');
-      localStorage.setItem('yuraa_theme', 'dark');
-    } else {
-      root.classList.remove('dark');
-      localStorage.setItem('yuraa_theme', 'light');
-    }
-  }, [darkMode]);
+
 
   // Sync route from URL hash for deep linking on mobile & direct sharing
   useEffect(() => {
@@ -261,7 +251,15 @@ export default function App() {
   const handleDirectBuy = (
     product: Product,
     variant: ProductVariant,
-    customerData: { name: string; whatsapp: string; email: string }
+    customerData: {
+      name: string;
+      whatsapp: string;
+      email: string;
+      robloxUsername?: string;
+      robloxPassword?: string;
+      robloxMethod?: 'gamepass' | 'login' | 'premium';
+      robloxGamepassUrl?: string;
+    }
   ) => {
     const singleCartItem: CartItem = {
       id: `direct-${Date.now()}`,
@@ -270,6 +268,10 @@ export default function App() {
       selectedVariant: variant,
       quantity: 1,
       addedAt: Date.now(),
+      robloxUsername: customerData.robloxUsername,
+      robloxPassword: customerData.robloxPassword,
+      robloxMethod: customerData.robloxMethod,
+      robloxGamepassUrl: customerData.robloxGamepassUrl,
     };
 
     const newOrder: Order = {
@@ -285,6 +287,10 @@ export default function App() {
       customerWhatsapp: customerData.whatsapp,
       customerEmail: customerData.email,
       createdAt: Date.now(),
+      robloxUsername: customerData.robloxUsername,
+      robloxPassword: customerData.robloxPassword,
+      robloxMethod: customerData.robloxMethod,
+      robloxGamepassUrl: customerData.robloxGamepassUrl,
     };
 
     saveOrderToStorage(newOrder);
@@ -367,6 +373,16 @@ export default function App() {
     setActivePaymentOrder(updatedOrder);
     // Clear cart if items were purchased
     setCart([]);
+
+    // Trigger visual notification toast that sends product credentials to registered email
+    setEmailSentToast({
+      id: `toast-${Date.now()}`,
+      email: updatedOrder.customerEmail,
+      invoiceNumber: updatedOrder.invoiceNumber,
+      customerName: updatedOrder.customerName,
+      itemsSummary: updatedOrder.items.map((i) => i.product.name).join(', '),
+      isRoblox: Boolean(updatedOrder.robloxUsername || updatedOrder.items.some((i) => i.product.category === 'game')),
+    });
   };
 
   const totalCartItemsCount = cart.reduce((sum, it) => sum + it.quantity, 0);
@@ -409,7 +425,7 @@ export default function App() {
       {/* Sticky Top Bar / Header */}
       <Header
         darkMode={darkMode}
-        onToggleTheme={() => setDarkMode(!darkMode)}
+        onToggleTheme={toggleTheme}
         user={user}
         onOpenAuth={() => setIsAuthOpen(true)}
         cartCount={totalCartItemsCount}
@@ -431,10 +447,32 @@ export default function App() {
         ) : currentView === 'product_detail' && selectedProduct ? (
           <ProductDetailPage
             product={selectedProduct}
+            allProducts={products}
             user={user}
             onBack={handleBackToHome}
             onOpenAuth={() => setIsAuthOpen(true)}
-            onAddToCart={(prod, variant) => handleAddToCart(prod, variant)}
+            onSelectProduct={handleSelectProduct}
+            onAddToCart={(prod, variant, robloxData) => {
+              if (robloxData) {
+                const chosenVariant = variant || prod.variants[0];
+                const newItem: CartItem = {
+                  id: `cart-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+                  productId: prod.id,
+                  product: prod,
+                  selectedVariant: chosenVariant,
+                  quantity: 1,
+                  addedAt: Date.now(),
+                  robloxUsername: robloxData.robloxUsername,
+                  robloxPassword: robloxData.robloxPassword,
+                  robloxMethod: robloxData.robloxMethod,
+                  robloxGamepassUrl: robloxData.robloxGamepassUrl,
+                };
+                setCart((prev) => [...prev, newItem]);
+                setIsCartOpen(true);
+              } else {
+                handleAddToCart(prod, variant);
+              }
+            }}
             onDirectBuy={handleDirectBuy}
           />
         ) : (
@@ -614,11 +652,33 @@ export default function App() {
         onResetAllOverrides={handleResetAllOverrides}
         orders={orders}
         onOrdersChange={() => setOrders(getStoredOrders())}
+        darkMode={darkMode}
+        onToggleTheme={toggleTheme}
         onUpdateOrderStatus={(orderId, status) => {
           const updated = orders.map((o) => (o.id === orderId ? { ...o, paymentStatus: status } : o));
           setOrders(updated);
           localStorage.setItem('yuraa_user_orders', JSON.stringify(updated));
+
+          if (status === 'paid') {
+            const paidOrd = orders.find((o) => o.id === orderId);
+            if (paidOrd) {
+              setEmailSentToast({
+                id: `toast-${Date.now()}`,
+                email: paidOrd.customerEmail,
+                invoiceNumber: paidOrd.invoiceNumber,
+                customerName: paidOrd.customerName,
+                itemsSummary: paidOrd.items.map((i) => i.product.name).join(', '),
+                isRoblox: Boolean(paidOrd.robloxUsername || paidOrd.items.some((i) => i.product.category === 'game')),
+              });
+            }
+          }
         }}
+      />
+
+      {/* Visual Toast Notification for Email Credentials Delivery */}
+      <EmailCredentialsSentToast
+        toast={emailSentToast}
+        onClose={() => setEmailSentToast(null)}
       />
     </div>
   );

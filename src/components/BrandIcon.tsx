@@ -210,6 +210,40 @@ export const BrandIcon: React.FC<BrandIconProps> = ({ iconType, className = '', 
         </div>
       );
 
+    case 'roblox':
+    case 'roblox_login':
+      return (
+        <div className={`bg-gradient-to-br from-neutral-900 via-neutral-950 to-black flex flex-col items-center justify-center ${currentSize} ${className} shadow-md border border-neutral-800 relative overflow-hidden group`}>
+          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-white rotate-[15deg] rounded-[3px] flex items-center justify-center shadow-md">
+            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-neutral-950 rounded-[1px]"></div>
+          </div>
+          <span className="text-[8px] font-black text-neutral-300 tracking-wider uppercase mt-1">ROBLOX</span>
+        </div>
+      );
+
+    case 'robux':
+    case 'robux_gamepass':
+      return (
+        <div className={`bg-gradient-to-br from-emerald-950 via-neutral-950 to-slate-950 flex flex-col items-center justify-center ${currentSize} ${className} shadow-md border border-emerald-500/40 relative overflow-hidden`}>
+          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-b from-amber-300 via-amber-400 to-amber-500 rounded-lg rotate-45 flex items-center justify-center shadow-lg border border-amber-200">
+            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-neutral-950 rounded-sm"></div>
+          </div>
+          <div className="flex items-center gap-0.5 mt-1">
+            <span className="text-[8px] font-black text-emerald-400 tracking-wider">GAMEPASS</span>
+          </div>
+        </div>
+      );
+
+    case 'roblox_premium':
+      return (
+        <div className={`bg-gradient-to-br from-slate-900 via-purple-950 to-neutral-950 flex flex-col items-center justify-center ${currentSize} ${className} shadow-md border border-purple-500/40 relative overflow-hidden`}>
+          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-tr from-purple-400 via-indigo-300 to-amber-200 rotate-[15deg] rounded-[3px] flex items-center justify-center shadow-md">
+            <span className="text-black font-black text-xs -rotate-[15deg]">P</span>
+          </div>
+          <span className="text-[8px] font-black text-purple-300 tracking-wider uppercase mt-1">PREMIUM</span>
+        </div>
+      );
+
     default:
       return (
         <div className={`bg-blue-600 flex items-center justify-center text-white font-bold ${currentSize} ${className} shadow-md`}>

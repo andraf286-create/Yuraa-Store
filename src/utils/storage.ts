@@ -338,28 +338,37 @@ export function getDeletedOrders(): DeletedOrderLog[] {
   }
 }
 
-export function deleteOrderFromStorage(orderId: string, reason: string = 'Dihapus oleh Admin'): DeletedOrderLog | null {
+export function deleteOrderFromStorage(orderOrId: string | Order, reason: string = 'Dihapus oleh Admin'): DeletedOrderLog | null {
   try {
     const existingOrders = getStoredOrders();
-    const targetOrder = existingOrders.find((o) => o.id === orderId);
+    let targetOrder: Order | undefined;
+
+    if (typeof orderOrId === 'object' && orderOrId !== null) {
+      targetOrder = orderOrId;
+    } else {
+      targetOrder = existingOrders.find((o) => o.id === orderOrId || o.invoiceNumber === orderOrId);
+    }
+
     if (!targetOrder) return null;
 
     // Filter out from active orders
-    const updatedOrders = existingOrders.filter((o) => o.id !== orderId);
+    const targetId = targetOrder.id;
+    const targetInvoice = targetOrder.invoiceNumber;
+    const updatedOrders = existingOrders.filter((o) => o.id !== targetId && o.invoiceNumber !== targetInvoice);
     localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(updatedOrders));
 
     // Construct deletion log
-    const itemsText = targetOrder.items
-      .map((it) => `${it.product.name} (${it.selectedVariant.name}) x${it.quantity}`)
-      .join(', ');
+    const itemsText = Array.isArray(targetOrder.items)
+      ? targetOrder.items.map((it) => `${it.product?.name || 'Produk'} (${it.selectedVariant?.name || ''}) x${it.quantity}`).join(', ')
+      : 'Produk Akun Premium';
 
     const logEntry: DeletedOrderLog = {
       id: `del-log-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
       orderId: targetOrder.id,
       invoiceNumber: targetOrder.invoiceNumber,
-      customerName: targetOrder.customerName,
-      customerEmail: targetOrder.customerEmail,
-      customerWhatsapp: targetOrder.customerWhatsapp,
+      customerName: targetOrder.customerName || 'Pelanggan',
+      customerEmail: targetOrder.customerEmail || '-',
+      customerWhatsapp: targetOrder.customerWhatsapp || '-',
       itemsSummary: itemsText || 'Produk Akun Premium',
       totalAmount: targetOrder.totalAmount,
       paymentStatus: targetOrder.paymentStatus,
@@ -370,7 +379,8 @@ export function deleteOrderFromStorage(orderId: string, reason: string = 'Dihapu
     };
 
     const existingLogs = getDeletedOrders();
-    localStorage.setItem(STORAGE_KEYS.DELETED_ORDERS, JSON.stringify([logEntry, ...existingLogs]));
+    const updatedLogs = [logEntry, ...existingLogs.filter((l) => l.orderId !== targetId && l.invoiceNumber !== targetInvoice)];
+    localStorage.setItem(STORAGE_KEYS.DELETED_ORDERS, JSON.stringify(updatedLogs));
 
     return logEntry;
   } catch (e) {

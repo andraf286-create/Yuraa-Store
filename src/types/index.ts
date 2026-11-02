@@ -1,5 +1,6 @@
 export type ProductCategory = 
   | 'all'
+  | 'game'
   | 'pulsa'
   | 'paket_data'
   | 'streaming'
@@ -47,6 +48,10 @@ export interface CartItem {
   selectedVariant: ProductVariant;
   quantity: number;
   addedAt: number;
+  robloxUsername?: string;
+  robloxPassword?: string;
+  robloxMethod?: 'gamepass' | 'login' | 'premium';
+  robloxGamepassUrl?: string;
 }
 
 export type PaymentMethodType = 
@@ -103,6 +108,10 @@ export interface Order {
   deliveredAccounts?: DeliveredAccount[];
   vaNumber?: string;
   qrisPayload?: string;
+  robloxUsername?: string;
+  robloxPassword?: string;
+  robloxMethod?: 'gamepass' | 'login' | 'premium';
+  robloxGamepassUrl?: string;
 }
 
 export interface UserProfile {

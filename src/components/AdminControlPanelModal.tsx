@@ -27,9 +27,12 @@ import {
   Archive,
   History,
   FileText,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { Product, Order, AccountInventoryItem } from '../types';
 import { BrandIcon } from './BrandIcon';
+import { useTheme } from '../context/ThemeContext';
 import {
   getAdminPassword,
   setAdminPassword,
@@ -63,6 +66,8 @@ interface AdminControlPanelModalProps {
   orders: Order[];
   onUpdateOrderStatus?: (orderId: string, status: 'pending' | 'paid' | 'cancelled' | 'refunded') => void;
   onOrdersChange?: () => void;
+  darkMode?: boolean;
+  onToggleTheme?: () => void;
 }
 
 export const AdminControlPanelModal: React.FC<AdminControlPanelModalProps> = ({
@@ -74,7 +79,14 @@ export const AdminControlPanelModal: React.FC<AdminControlPanelModalProps> = ({
   orders,
   onUpdateOrderStatus,
   onOrdersChange,
+  darkMode: propDarkMode,
+  onToggleTheme: propToggleTheme,
 }) => {
+  // Theme context synchronization
+  const themeContext = useTheme();
+  const isDark = propDarkMode !== undefined ? propDarkMode : themeContext.isDark;
+  const toggleTheme = propToggleTheme || themeContext.toggleTheme;
+
   // Authentication state - with persistent session check & logout capability
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => getAdminSession());
   const [passwordInput, setPasswordInput] = useState('');
@@ -84,10 +96,12 @@ export const AdminControlPanelModal: React.FC<AdminControlPanelModalProps> = ({
   // Active Tab: 'stock' | 'credentials' | 'orders' | 'deleted_history' | 'security'
   const [activeTab, setActiveTab] = useState<'stock' | 'credentials' | 'orders' | 'deleted_history' | 'security'>('stock');
 
-  // Deleted orders audit log state
+  // Deleted orders audit log state & in-app confirmation modals (replaces blocked window.confirm)
   const [deletedOrders, setDeletedOrders] = useState<DeletedOrderLog[]>(() => getDeletedOrders());
   const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
   const [deleteReason, setDeleteReason] = useState<string>('');
+  const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
+  const [logToDeletePermanently, setLogToDeletePermanently] = useState<DeletedOrderLog | null>(null);
 
   // Sync deleted orders whenever modal opens
   useEffect(() => {
@@ -166,11 +180,15 @@ export const AdminControlPanelModal: React.FC<AdminControlPanelModalProps> = ({
   const handleConfirmDeleteOrder = () => {
     if (!orderToDelete) return;
     const inv = orderToDelete.invoiceNumber;
-    const log = deleteOrderFromStorage(orderToDelete.id, deleteReason);
+    const log = deleteOrderFromStorage(orderToDelete, deleteReason);
     if (log) {
       setDeletedOrders(getDeletedOrders());
       onOrdersChange?.();
-      showToast(`Pesanan #${inv} berhasil dihapus & dicatat di Riwayat Penghapusan`);
+      showToast(`Pesanan #${inv} berhasil dihapus & dicatat di Riwayat`);
+    } else {
+      setDeletedOrders(getDeletedOrders());
+      onOrdersChange?.();
+      showToast(`Pesanan #${inv} telah dihapus.`);
     }
     setOrderToDelete(null);
     setDeleteReason('');
@@ -185,20 +203,28 @@ export const AdminControlPanelModal: React.FC<AdminControlPanelModalProps> = ({
     }
   };
 
-  const handlePermanentDelete = (logId: string, invoice: string) => {
-    if (confirm(`Hapus permanen riwayat transaksi #${invoice}? Tindakan ini tidak dapat dibatalkan.`)) {
-      deleteDeletedOrderPermanently(logId);
-      setDeletedOrders(getDeletedOrders());
-      showToast(`Riwayat #${invoice} dihapus permanen`);
-    }
+  const handlePromptPermanentDelete = (log: DeletedOrderLog) => {
+    setLogToDeletePermanently(log);
   };
 
-  const handleClearAllDeletedLogs = () => {
-    if (confirm('Kosongkan seluruh riwayat transaksi yang pernah dihapus?')) {
-      clearAllDeletedOrders();
-      setDeletedOrders([]);
-      showToast('Semua riwayat penghapusan transaksi telah dibersihkan.');
-    }
+  const handleExecutePermanentDelete = () => {
+    if (!logToDeletePermanently) return;
+    const inv = logToDeletePermanently.invoiceNumber;
+    deleteDeletedOrderPermanently(logToDeletePermanently.id);
+    setDeletedOrders(getDeletedOrders());
+    setLogToDeletePermanently(null);
+    showToast(`Riwayat #${inv} dihapus permanen.`);
+  };
+
+  const handleOpenClearAllConfirm = () => {
+    setShowClearAllConfirm(true);
+  };
+
+  const handleExecuteClearAllLogs = () => {
+    clearAllDeletedOrders();
+    setDeletedOrders([]);
+    setShowClearAllConfirm(false);
+    showToast('Semua riwayat penghapusan transaksi telah dibersihkan.');
   };
 
   const handleToggleSoldOut = (product: Product) => {
@@ -403,6 +429,26 @@ export const AdminControlPanelModal: React.FC<AdminControlPanelModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Theme Context Toggle inside Admin Control Panel */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95"
+              title={isDark ? 'Ganti ke Mode Terang (Light)' : 'Ganti ke Mode Gelap (Dark)'}
+            >
+              {isDark ? (
+                <>
+                  <Sun className="w-3.5 h-3.5 text-amber-500 fill-amber-400/40" />
+                  <span className="hidden sm:inline">Mode Gelap</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="w-3.5 h-3.5 text-blue-600 fill-blue-500/20" />
+                  <span className="hidden sm:inline">Mode Terang</span>
+                </>
+              )}
+            </button>
+
             {isAuthenticated && (
               <button
                 type="button"
@@ -1083,6 +1129,51 @@ export const AdminControlPanelModal: React.FC<AdminControlPanelModalProps> = ({
                               </div>
                             ))}
                           </div>
+
+                          {/* Roblox Top Up Specifics for Admin Fulfillment */}
+                          {o.robloxUsername && (
+                            <div className="mt-2 p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-xs space-y-1">
+                              <div className="flex items-center justify-between">
+                                <span className="font-bold text-emerald-400">🎮 DATA TOP UP ROBLOX:</span>
+                                <span className="text-[10px] uppercase font-bold text-neutral-400">
+                                  {o.robloxMethod === 'gamepass' ? 'Via Gamepass' : o.robloxMethod === 'premium' ? 'Subs Premium' : 'Via Login'}
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between font-mono bg-black/50 p-1.5 rounded-lg border border-neutral-800">
+                                <span className="text-white">User: <strong>{o.robloxUsername}</strong></span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(o.robloxUsername || '');
+                                    showToast('Username Roblox disalin!');
+                                  }}
+                                  className="text-[10px] px-2 py-0.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-sans font-bold"
+                                >
+                                  Salin User
+                                </button>
+                              </div>
+                              {o.robloxPassword && (
+                                <div className="flex items-center justify-between font-mono bg-black/50 p-1.5 rounded-lg border border-neutral-800">
+                                  <span className="text-amber-300">Pass: <strong>{o.robloxPassword}</strong></span>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(o.robloxPassword || '');
+                                      showToast('Password Roblox disalin!');
+                                    }}
+                                    className="text-[10px] px-2 py-0.5 rounded bg-amber-600 hover:bg-amber-500 text-white font-sans font-bold"
+                                  >
+                                    Salin Pw
+                                  </button>
+                                </div>
+                              )}
+                              {o.robloxGamepassUrl && (
+                                <p className="text-[10px] text-neutral-300 truncate">
+                                  Link Pass: <span className="text-cyan-400">{o.robloxGamepassUrl}</span>
+                                </p>
+                              )}
+                            </div>
+                          )}
                         </div>
 
                         <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800 text-xs">
@@ -1144,10 +1235,13 @@ export const AdminControlPanelModal: React.FC<AdminControlPanelModalProps> = ({
 
                     {deletedOrders.length > 0 && (
                       <button
-                        onClick={handleClearAllDeletedLogs}
-                        className="px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-600 dark:text-slate-400 hover:text-red-500 text-[10px] font-bold border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer"
+                        type="button"
+                        onClick={handleOpenClearAllConfirm}
+                        className="px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 hover:text-red-700 text-xs font-bold border border-red-500/30 transition-all flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
+                        title="Kosongkan seluruh riwayat audit penghapusan"
                       >
-                        Bersihkan Riwayat
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Bersihkan Riwayat</span>
                       </button>
                     )}
                   </div>
@@ -1211,7 +1305,8 @@ export const AdminControlPanelModal: React.FC<AdminControlPanelModalProps> = ({
                             </button>
 
                             <button
-                              onClick={() => handlePermanentDelete(log.id, log.invoiceNumber)}
+                              type="button"
+                              onClick={() => handlePromptPermanentDelete(log)}
                               className="p-1.5 rounded-xl hover:bg-red-500/20 text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
                               title="Hapus Permanen Catatan Ini"
                             >
@@ -1367,6 +1462,102 @@ export const AdminControlPanelModal: React.FC<AdminControlPanelModalProps> = ({
                   className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-extrabold uppercase tracking-wide transition-all shadow-md shadow-red-600/30 cursor-pointer"
                 >
                   Hapus Transaksi
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Clear All Audit History Confirmation Dialog */}
+        {showClearAllConfirm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-150">
+            <div className="bg-white dark:bg-[#121b2d] border border-red-300 dark:border-red-500/40 rounded-3xl p-5 max-w-md w-full shadow-2xl space-y-4 text-slate-900 dark:text-white">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
+                  <Trash2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-sm text-slate-900 dark:text-white">
+                    Bersihkan Seluruh Riwayat Transaksi?
+                  </h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Total {deletedOrders.length} catatan riwayat transaksi yang pernah dihapus
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#090d16] border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                Apakah Anda yakin ingin mengosongkan seluruh riwayat audit transaksi yang pernah dihapus? Semua catatan ini akan dibersihkan dan tidak dapat dipulihkan kembali.
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowClearAllConfirm(false)}
+                  className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold transition-colors cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExecuteClearAllLogs}
+                  className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-extrabold uppercase tracking-wide transition-all shadow-md shadow-red-600/30 cursor-pointer"
+                >
+                  Ya, Bersihkan Semua
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Permanent Delete Single Item Dialog */}
+        {logToDeletePermanently && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-150">
+            <div className="bg-white dark:bg-[#121b2d] border border-red-300 dark:border-red-500/40 rounded-3xl p-5 max-w-md w-full shadow-2xl space-y-4 text-slate-900 dark:text-white">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
+                  <Trash2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-sm text-slate-900 dark:text-white">
+                    Hapus Permanen Catatan Riwayat?
+                  </h3>
+                  <p className="text-[11px] font-mono text-red-500 font-bold">
+                    Invoice: #{logToDeletePermanently.invoiceNumber}
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#090d16] border border-slate-200 dark:border-slate-800 text-xs space-y-1">
+                <p className="text-slate-700 dark:text-slate-300">
+                  👤 <strong>{logToDeletePermanently.customerName}</strong> ({logToDeletePermanently.customerWhatsapp})
+                </p>
+                <p className="text-slate-500 dark:text-slate-400 text-[11px]">
+                  Produk: <span className="text-slate-900 dark:text-white font-medium">{logToDeletePermanently.itemsSummary}</span>
+                </p>
+                <p className="text-slate-500 dark:text-slate-400 text-[11px]">
+                  Total: <strong className="text-slate-900 dark:text-white font-mono">{formatRupiah(logToDeletePermanently.totalAmount)}</strong>
+                </p>
+              </div>
+
+              <p className="text-xs text-rose-600 dark:text-rose-400 font-semibold">
+                ⚠️ Catatan ini akan dihapus permanen dari audit log dan tidak bisa dipulihkan lagi.
+              </p>
+
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setLogToDeletePermanently(null)}
+                  className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold transition-colors cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExecutePermanentDelete}
+                  className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-extrabold uppercase tracking-wide transition-all shadow-md shadow-red-600/30 cursor-pointer"
+                >
+                  Hapus Permanen
                 </button>
               </div>
             </div>

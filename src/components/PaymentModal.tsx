@@ -21,6 +21,7 @@ import { Order, DeliveredAccount } from '../types';
 import { STORE_INFO } from '../data/products';
 import { formatRupiah, formatDateTime } from '../utils/formatters';
 import { dispenseAccountForProduct } from '../utils/storage';
+import { OfficialQRISCard } from './OfficialQRISCard';
 
 interface PaymentModalProps {
   order: Order;
@@ -45,6 +46,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const [credentials, setCredentials] = useState<DeliveredAccount[]>(order.deliveredAccounts || []);
   const [timerSeconds, setTimerSeconds] = useState(900); // 15:00 minutes
   const [showEmailPreview, setShowEmailPreview] = useState(false);
+  const [emailSentAlert, setEmailSentAlert] = useState(false);
+  const [isResending, setIsResending] = useState(false);
 
   // Visual Verification Progress & Skeleton Loading State
   const [isVerifying, setIsVerifying] = useState(false);
@@ -92,18 +95,32 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       .map((it) => `• ${it.product.name} (${it.selectedVariant.name}) x${it.quantity}`)
       .join('\n');
 
+    let extraRoblox = '';
+    if (order.robloxUsername) {
+      extraRoblox = `\n🎮 Username Roblox: ${order.robloxUsername}\n⚡ Metode Top Up: ${
+        order.robloxMethod === 'gamepass'
+          ? 'Via Link Gamepass (Hanya Username)'
+          : order.robloxMethod === 'premium'
+          ? 'Roblox Subs Premium'
+          : 'Via Login Kilat'
+      }`;
+      if (order.robloxGamepassUrl) {
+        extraRoblox += `\n🔗 Link Gamepass: ${order.robloxGamepassUrl}`;
+      }
+    }
+
     const message = `Halo Admin Yuraa Store 🐼, saya mau konfirmasi pembayaran:
 
 📌 No. Invoice: ${order.invoiceNumber}
 👤 Nama: ${order.customerName}
-📱 No. WhatsApp: ${order.customerWhatsapp}
+📱 No. WhatsApp: ${order.customerWhatsapp}${extraRoblox}
 🛍️ Produk:
 ${itemsList}
 
 💰 Total Bayar: ${formatRupiah(order.totalAmount)}
 💳 Metode: ${selectedMethod === 'dana' ? 'DANA (' + STORE_INFO.danaNumber + ')' : 'QRIS Instan'}
 
-Berikut saya lampirkan bukti pembayarannya ya Kak. Mohon bantu proses akunnya secepatnya, terima kasih!`;
+Berikut saya lampirkan bukti pembayarannya ya Kak. Mohon bantu proses secepatnya (Robux / Akun), terima kasih!`;
 
     window.open(`https://wa.me/${STORE_INFO.whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
   };
@@ -172,7 +189,18 @@ Berikut saya lampirkan bukti pembayarannya ya Kak. Mohon bantu proses akunnya se
     setCredentials(delivered);
     setIsVerifying(false);
     setIsPaid(true);
+    setEmailSentAlert(true);
     onPaymentSuccess(updatedOrder);
+  };
+
+  const handleResendEmail = () => {
+    setIsResending(true);
+    setTimeout(() => {
+      setIsResending(false);
+      setEmailSentAlert(true);
+      // Re-trigger global app toast if available
+      onPaymentSuccess({ ...order, paymentStatus: 'paid', deliveredAccounts: credentials });
+    }, 800);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -305,35 +333,54 @@ Berikut saya lampirkan bukti pembayarannya ya Kak. Mohon bantu proses akunnya se
               </p>
             </div>
 
-            {/* Email Auto-Delivery Notification Banner */}
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-950/70 via-indigo-950/60 to-slate-900 border border-blue-500/40 shadow-lg space-y-2.5">
+            {/* Visual Toast Alert for Email Delivery */}
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-950/80 via-indigo-950/70 to-slate-900 border border-blue-500/50 shadow-xl space-y-3 relative overflow-hidden">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-black text-white">
-                  <Mail className="w-4 h-4 text-blue-400" />
-                  <span className="uppercase tracking-wider">AKUN TELAH DIKIRIM KE EMAIL:</span>
+                <div className="flex items-center gap-2.5 text-xs font-black text-white">
+                  <div className="w-7 h-7 rounded-lg bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-blue-400">
+                    <Mail className="w-4 h-4 animate-pulse" />
+                  </div>
+                  <div>
+                    <span className="uppercase tracking-wider block">KREDENSIAL DIKIRIM KE EMAIL</span>
+                    <span className="text-[10px] text-slate-400 font-normal">Pengiriman otomatis server</span>
+                  </div>
                 </div>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                  TERKIRIM
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono tracking-wider">
+                  ✓ TERKIRIM
                 </span>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-slate-950/80 border border-blue-500/30 flex items-center justify-between text-xs font-mono">
-                <span className="text-blue-300 truncate font-bold">{order.customerEmail}</span>
-                <span className="text-[10px] text-slate-400 font-sans">Inbox / Spam</span>
+              <div className="p-2.5 rounded-xl bg-slate-950/90 border border-blue-500/30 flex items-center justify-between text-xs font-mono">
+                <span className="text-cyan-300 truncate font-bold">{order.customerEmail}</span>
+                <span className="text-[10px] text-emerald-400 font-sans font-bold flex items-center gap-1">
+                  <Check className="w-3 h-3" /> Inbox / Spam
+                </span>
               </div>
 
               <p className="text-[11px] text-slate-300 leading-relaxed">
-                Username &amp; Password akun telah dikirimkan ke email Anda. Anda juga dapat melihat dan menyalinnya langsung di bawah ini:
+                Username, password, dan detail pesanan telah otomatis dikirimkan ke email terdaftar Anda. Anda juga dapat melihat dan menyalinnya langsung di bawah ini:
               </p>
 
-              <button
-                type="button"
-                onClick={() => setShowEmailPreview(!showEmailPreview)}
-                className="w-full py-2 rounded-xl bg-blue-600/30 hover:bg-blue-600/40 text-blue-300 hover:text-white border border-blue-500/40 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <Mail className="w-3.5 h-3.5 text-blue-400" />
-                <span>{showEmailPreview ? 'Sembunyikan Salinan Email' : 'Lihat Tampilan Salinan Email Pengiriman'}</span>
-              </button>
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowEmailPreview(!showEmailPreview)}
+                  className="py-2 px-3 rounded-xl bg-blue-600/30 hover:bg-blue-600/40 text-blue-300 hover:text-white border border-blue-500/40 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Mail className="w-3.5 h-3.5 text-blue-400" />
+                  <span>{showEmailPreview ? 'Sembunyikan' : 'Preview Email'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleResendEmail}
+                  disabled={isResending}
+                  className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  <Send className={`w-3.5 h-3.5 text-emerald-400 ${isResending ? 'animate-spin' : ''}`} />
+                  <span>{isResending ? 'Mengirim...' : 'Kirim Ulang Email'}</span>
+                </button>
+              </div>
             </div>
 
             {/* Email Preview Accordion / Client Card */}
@@ -374,6 +421,44 @@ Berikut saya lampirkan bukti pembayarannya ya Kak. Mohon bantu proses akunnya se
                     Jika ada kendala akses atau screen limit, hubungi Customer Care kami di WhatsApp {STORE_INFO.whatsappDisplay} dengan melampirkan invoice ini.
                   </p>
                 </div>
+              </div>
+            )}
+
+            {/* ROBLOX TOP UP DELIVERY STATUS BOX IF ROBLOX */}
+            {order.robloxUsername && (
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-950/80 via-neutral-900 to-black border border-emerald-500/50 space-y-3">
+                <div className="flex items-center justify-between border-b border-emerald-500/30 pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span className="text-xs font-black text-emerald-400 uppercase tracking-wider">
+                      STATUS PENGISIAN ROBUX (PROSES ±5 MENIT)
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono text-emerald-300 font-bold bg-emerald-900/60 px-2 py-0.5 rounded border border-emerald-500/30">
+                    SEDANG DIKIRIM
+                  </span>
+                </div>
+
+                <div className="space-y-1.5 text-xs">
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-black/60 border border-neutral-800">
+                    <span className="text-[11px] text-neutral-400">Target Akun Roblox:</span>
+                    <span className="font-mono font-black text-white">{order.robloxUsername}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-black/60 border border-neutral-800">
+                    <span className="text-[11px] text-neutral-400">Metode:</span>
+                    <span className="font-bold text-emerald-400">
+                      {order.robloxMethod === 'gamepass'
+                        ? 'Via Link Gamepass (Pajak 30% Ditanggung Toko)'
+                        : order.robloxMethod === 'premium'
+                        ? 'Roblox Subs Premium'
+                        : 'Via Login Kilat'}
+                    </span>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-emerald-200/90 leading-relaxed">
+                  ⚡ <strong>Top Up Robux Sedang Berlangsung:</strong> Admin Yuraa Store sedang memproses pengisian ke akun <strong>{order.robloxUsername}</strong>. Robux akan masuk bersih dalam kurun waktu <strong>±5 Menit</strong> tanpa perlu menunggu 5 hari. Notifikasi selesai akan dikirimkan ke WhatsApp Anda!
+                </p>
               </div>
             )}
 
@@ -602,26 +687,22 @@ Berikut saya lampirkan bukti pembayarannya ya Kak. Mohon bantu proses akunnya se
                 </ol>
               </div>
             ) : (
-              /* QRIS Method Content */
-              <div className="space-y-3.5 p-4 rounded-2xl bg-slate-900 border border-slate-800 text-center">
-                <span className="text-xs font-bold text-slate-300 block">
-                  Scan QRIS dengan BCA, Mandiri, GoPay, OVO, ShopeePay, DANA
-                </span>
-
-                <div className="w-48 h-48 mx-auto p-2 bg-white rounded-2xl flex flex-col items-center justify-center shadow-lg border border-slate-300">
-                  <div className="w-full flex justify-between items-center px-1 mb-1">
-                    <span className="text-[9px] font-black text-slate-800 font-mono tracking-tighter">QRIS RESMI</span>
-                    <span className="text-[8px] text-slate-500">YURAA STORE</span>
-                  </div>
-                  <img
-                    src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=00020101021226670014ID.GO.QRIS.WWW01189360091808984436849520458125303360540"
-                    alt="QRIS Yuraa Store"
-                    className="w-36 h-36 object-contain"
-                  />
-                  <span className="text-[8px] font-bold text-slate-700 mt-1 uppercase">
-                    A/N YURAA STORE DIGITAL
+              /* QRIS Method Content - Official Placard */
+              <div className="space-y-3 p-3 sm:p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col items-center">
+                <div className="text-center mb-1">
+                  <span className="text-xs font-bold text-slate-200 block">
+                    Scan QRIS Resmi Pembayaran Nasional
+                  </span>
+                  <span className="text-[11px] text-slate-400">
+                    Bisa via BCA, Mandiri, BRI, BNI, GoPay, OVO, ShopeePay, DANA &amp; M-Banking
                   </span>
                 </div>
+
+                <OfficialQRISCard
+                  amount={order.totalAmount}
+                  invoiceNumber={order.id}
+                  showActions={true}
+                />
               </div>
             )}
 
