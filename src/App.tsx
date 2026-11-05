@@ -25,6 +25,7 @@ import { FloatingActions } from './components/FloatingActions';
 import { NotFoundPage } from './components/NotFoundPage';
 import { AdminControlPanelModal } from './components/AdminControlPanelModal';
 import { ReferralModal } from './components/ReferralModal';
+import { LoyaltyPointsModal } from './components/LoyaltyPointsModal';
 import { EmailCredentialsSentToast, EmailToastData } from './components/EmailCredentialsSentToast';
 import { setAppliedReferralCode, getAppliedReferralCode } from './utils/referral';
 import { Gift } from 'lucide-react';
@@ -42,6 +43,7 @@ import {
   getProductOverrides,
   saveProductOverride,
   resetAllProductOverrides,
+  calculatePointsEarned,
 } from './utils/storage';
 import { generateRandomInvoice } from './utils/formatters';
 
@@ -87,6 +89,7 @@ export default function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isReferralOpen, setIsReferralOpen] = useState(false);
+  const [isLoyaltyOpen, setIsLoyaltyOpen] = useState(false);
   const [appliedVoucherCode, setAppliedVoucherCode] = useState<string>('');
   const [referralToast, setReferralToast] = useState<string | null>(null);
   const [isAIOpen, setIsAIOpen] = useState(false);
@@ -274,6 +277,8 @@ export default function App() {
       robloxGamepassUrl: customerData.robloxGamepassUrl,
     };
 
+    const pointsEarned = calculatePointsEarned(variant.price, user?.tier || 'VIP');
+
     const newOrder: Order = {
       id: `ord-${Date.now()}`,
       invoiceNumber: generateRandomInvoice(),
@@ -287,6 +292,7 @@ export default function App() {
       customerWhatsapp: customerData.whatsapp,
       customerEmail: customerData.email,
       createdAt: Date.now(),
+      pointsEarned,
       robloxUsername: customerData.robloxUsername,
       robloxPassword: customerData.robloxPassword,
       robloxMethod: customerData.robloxMethod,
@@ -298,18 +304,27 @@ export default function App() {
     setActivePaymentOrder(newOrder);
   };
 
-  // Checkout from Cart Drawer
-  const handleCartCheckout = (appliedDiscount: number) => {
+  // Checkout from Cart Drawer with coupon and loyalty points redemption
+  const handleCartCheckout = (
+    appliedDiscount: number,
+    pointsRedeemed: number = 0,
+    pointsDiscount: number = 0
+  ) => {
     if (cart.length === 0) return;
     const subtotal = cart.reduce((acc, item) => acc + item.selectedVariant.price * item.quantity, 0);
     const totalAmount = Math.max(0, subtotal - appliedDiscount);
+    const pointsEarned = calculatePointsEarned(totalAmount, user?.tier || 'VIP');
+    const couponOrPromoDiscount = Math.max(0, appliedDiscount - pointsDiscount);
 
     const newOrder: Order = {
       id: `ord-${Date.now()}`,
       invoiceNumber: generateRandomInvoice(),
       items: [...cart],
       totalAmount,
-      discountAmount: appliedDiscount,
+      discountAmount: couponOrPromoDiscount,
+      pointsRedeemed,
+      pointsDiscountAmount: pointsDiscount,
+      pointsEarned,
       feeAmount: 0,
       paymentMethod: 'dana',
       paymentStatus: 'pending',
@@ -347,12 +362,15 @@ export default function App() {
       addedAt: Date.now(),
     };
 
+    const pointsEarned = calculatePointsEarned(primaryVariant.price, user?.tier || 'VIP');
+
     const quickOrder: Order = {
       id: `ord-${Date.now()}`,
       invoiceNumber: generateRandomInvoice(),
       items: [singleCartItem],
       totalAmount: primaryVariant.price,
       discountAmount: 0,
+      pointsEarned,
       feeAmount: 0,
       paymentMethod: 'dana',
       paymentStatus: 'pending',
@@ -373,6 +391,25 @@ export default function App() {
     setActivePaymentOrder(updatedOrder);
     // Clear cart if items were purchased
     setCart([]);
+
+    // Update buyer's loyalty points balance in localStorage and app state
+    if (user) {
+      let currentPoints = user.loyaltyPoints ?? 0;
+      // Deduct redeemed points if used
+      if (updatedOrder.pointsRedeemed && updatedOrder.pointsRedeemed > 0) {
+        currentPoints = Math.max(0, currentPoints - updatedOrder.pointsRedeemed);
+      }
+      // Award cashback reward points for successful transaction
+      const earned = updatedOrder.pointsEarned || calculatePointsEarned(updatedOrder.totalAmount, user.tier || 'VIP');
+      currentPoints += earned;
+
+      const updatedUser: UserProfile = {
+        ...user,
+        loyaltyPoints: currentPoints,
+      };
+      setStoredUser(updatedUser);
+      setUser(updatedUser);
+    }
 
     // Trigger visual notification toast that sends product credentials to registered email
     setEmailSentToast({
@@ -432,6 +469,7 @@ export default function App() {
         onOpenCart={() => setIsCartOpen(true)}
         onOpenOrders={() => setIsAuthOpen(true)}
         onOpenReferral={() => setIsReferralOpen(true)}
+        onOpenLoyalty={() => setIsLoyaltyOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -499,11 +537,15 @@ export default function App() {
                 totalProductsCount={filteredProducts.length}
               />
 
-              {/* Products 2-Column (Mobile) up to 4-Column (Desktop) Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4 md:gap-5">
-                {filteredProducts.map((product) => (
+              {/* Products 2-Column (Mobile) up to 4-Column (Desktop) Grid with Smooth Transition */}
+              <div
+                key={`grid-${activeCategory}-${searchQuery}`}
+                className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4 md:gap-5"
+              >
+                {filteredProducts.map((product, idx) => (
                   <ProductCard
-                    key={product.id}
+                    key={`${activeCategory}-${product.id}`}
+                    index={idx}
                     product={product}
                     onSelectProduct={handleSelectProduct}
                     onAddToCart={(p, e) => handleAddToCart(p, undefined, e)}
@@ -575,11 +617,13 @@ export default function App() {
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
         cart={cart}
+        user={user}
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveFromCart}
         onCheckout={handleCartCheckout}
         appliedCouponCode={appliedVoucherCode}
         onOpenReferral={() => setIsReferralOpen(true)}
+        onOpenLoyaltyModal={() => setIsLoyaltyOpen(true)}
         onBrowseProducts={() => {
           setIsCartOpen(false);
           const el = document.getElementById('katalog-populer');
@@ -606,6 +650,7 @@ export default function App() {
         onLogout={() => handleUpdateUser(null)}
         orders={orders}
         onOpenAdminPanel={() => setIsAdminOpen(true)}
+        onOpenLoyaltyModal={() => setIsLoyaltyOpen(true)}
         onSelectOrderForPayment={(ord) => {
           setIsAuthOpen(false);
           setActivePaymentOrder(ord);
@@ -641,6 +686,14 @@ export default function App() {
           setIsReferralOpen(false);
           setIsCartOpen(true);
         }}
+      />
+
+      {/* Loyalty Points Rewards Modal */}
+      <LoyaltyPointsModal
+        isOpen={isLoyaltyOpen}
+        onClose={() => setIsLoyaltyOpen(false)}
+        user={user}
+        onOpenCart={() => setIsCartOpen(true)}
       />
 
       {/* Admin Secret Control Panel Modal with Logout & Transaction Deletion Log */}

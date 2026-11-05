@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sun, Moon, User as UserIcon, ShoppingBag, ShieldCheck, Gift } from 'lucide-react';
+import { Sun, Moon, User as UserIcon, ShoppingBag, ShieldCheck, Gift, Coins, Sparkles } from 'lucide-react';
 import { UserProfile } from '../types';
 import { PANDA_ASSETS } from '../utils/assets';
 import { formatRupiah } from '../utils/formatters';
@@ -13,6 +13,7 @@ interface HeaderProps {
   onOpenCart: () => void;
   onOpenOrders: () => void;
   onOpenReferral: () => void;
+  onOpenLoyalty: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -24,6 +25,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenCart,
   onOpenOrders,
   onOpenReferral,
+  onOpenLoyalty,
 }) => {
   return (
     <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-white/90 dark:bg-[#0b0f19]/90 border-b border-slate-200 dark:border-slate-800/80 transition-colors shadow-sm dark:shadow-none">
@@ -84,6 +86,20 @@ export const Header: React.FC<HeaderProps> = ({
               10%
             </span>
           </button>
+
+          {/* Loyalty Points Pill Button */}
+          {user && (
+            <button
+              onClick={onOpenLoyalty}
+              aria-label="Poin Loyalitas & Reward"
+              title="Klub Poin Loyalitas & Diskon Belanja"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold text-xs border border-amber-500/30 transition-all hover:scale-105 active:scale-95 shadow-sm cursor-pointer"
+            >
+              <Coins className="w-3.5 h-3.5 text-amber-500" />
+              <span className="font-mono font-black">{(user.loyaltyPoints || 0).toLocaleString('id-ID')}</span>
+              <span className="hidden md:inline text-[10px] text-amber-500 font-semibold">Poin</span>
+            </button>
+          )}
 
           {/* User Button / Balance Profile */}
           <button

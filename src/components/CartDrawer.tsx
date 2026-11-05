@@ -1,38 +1,44 @@
 import React, { useState } from 'react';
-import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, Tag, Check, Sparkles } from 'lucide-react';
-import { CartItem } from '../types';
+import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, Tag, Check, Sparkles, Coins, Gift } from 'lucide-react';
+import { CartItem, UserProfile } from '../types';
 import { BrandIcon } from './BrandIcon';
 import { formatRupiah } from '../utils/formatters';
 import { evaluateDiscountCode, getAppliedReferralCode } from '../utils/referral';
+import { calculatePointsEarned } from '../utils/storage';
 
 interface CartDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   cart: CartItem[];
+  user?: UserProfile | null;
   onUpdateQuantity: (cartItemId: string, newQty: number) => void;
   onRemoveItem: (cartItemId: string) => void;
-  onCheckout: (appliedDiscount: number) => void;
+  onCheckout: (appliedDiscount: number, pointsRedeemed?: number, pointsDiscount?: number) => void;
   onBrowseProducts: () => void;
   appliedCouponCode?: string;
   onOpenReferral?: () => void;
+  onOpenLoyaltyModal?: () => void;
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({
   isOpen,
   onClose,
   cart,
+  user,
   onUpdateQuantity,
   onRemoveItem,
   onCheckout,
   onBrowseProducts,
   appliedCouponCode,
   onOpenReferral,
+  onOpenLoyaltyModal,
 }) => {
   const [voucherCode, setVoucherCode] = useState(appliedCouponCode || '');
   const [discountPercent, setDiscountPercent] = useState(0);
   const [discountFixed, setDiscountFixed] = useState(0);
   const [voucherError, setVoucherError] = useState('');
   const [voucherSuccess, setVoucherSuccess] = useState('');
+  const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(false);
 
   // Auto-apply prefilled or URL-stored referral voucher on open
   React.useEffect(() => {
@@ -52,8 +58,18 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
   const subtotal = cart.reduce((acc, item) => acc + item.selectedVariant.price * item.quantity, 0);
   const calculatedPercentDiscount = Math.round((subtotal * discountPercent) / 100);
-  const discountAmount = discountFixed > 0 ? discountFixed : calculatedPercentDiscount;
-  const totalAmount = Math.max(0, subtotal - discountAmount);
+  const voucherDiscount = discountFixed > 0 ? discountFixed : calculatedPercentDiscount;
+  
+  // Loyalty points redemption logic: 1 Poin = Rp 1
+  const remainingBeforePoints = Math.max(0, subtotal - voucherDiscount);
+  const availablePoints = user?.loyaltyPoints || 0;
+  const usablePoints = Math.min(availablePoints, remainingBeforePoints);
+  const pointsDiscount = useLoyaltyPoints ? usablePoints : 0;
+  const pointsRedeemed = useLoyaltyPoints ? usablePoints : 0;
+  
+  const totalDiscount = voucherDiscount + pointsDiscount;
+  const totalAmount = Math.max(0, subtotal - totalDiscount);
+  const prospectivePointsEarned = calculatePointsEarned(totalAmount, user?.tier || 'VIP');
 
   const handleApplyVoucher = (e: React.FormEvent) => {
     e.preventDefault();
@@ -200,6 +216,51 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   )}
                 </form>
 
+                {/* Loyalty Points Redemption Box */}
+                {user && (user.loyaltyPoints || 0) > 0 && (
+                  <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 border border-amber-500/30 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                          <Coins className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-xs text-white">Tukarkan Poin Loyalitas</span>
+                            <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded font-bold font-mono">
+                              {user.loyaltyPoints?.toLocaleString('id-ID')} Poin
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-slate-400">
+                            1 Poin = Rp 1 potongan belanja langsung
+                          </p>
+                        </div>
+                      </div>
+
+                      <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                        <input
+                          type="checkbox"
+                          checked={useLoyaltyPoints}
+                          onChange={(e) => setUseLoyaltyPoints(e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                      </label>
+                    </div>
+
+                    {useLoyaltyPoints && (
+                      <div className="flex items-center justify-between pt-1.5 border-t border-amber-500/20 text-xs font-semibold">
+                        <span className="text-amber-300">
+                          Potongan Diskon Poin ({pointsRedeemed.toLocaleString('id-ID')} Poin):
+                        </span>
+                        <span className="font-mono font-bold text-emerald-400">
+                          -{formatRupiah(pointsDiscount)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {onOpenReferral && (
                   <button
                     onClick={() => {
@@ -217,18 +278,36 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
             {/* Footer Summary & Checkout Button */}
             <div className="p-4 border-t border-slate-800 bg-[#111929] space-y-3">
+              {/* Points Earned Prospective Badge */}
+              <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between text-xs">
+                <span className="text-slate-300 flex items-center gap-1.5 text-[11px]">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  Poin yang akan didapat:
+                </span>
+                <span className="font-mono font-bold text-amber-400 text-xs">
+                  +{prospectivePointsEarned.toLocaleString('id-ID')} Poin
+                </span>
+              </div>
+
               <div className="space-y-1.5 text-xs text-slate-300">
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
                   <span className="font-mono text-white font-bold">{formatRupiah(subtotal)}</span>
                 </div>
 
-                {discountAmount > 0 && (
+                {voucherDiscount > 0 && (
                   <div className="flex justify-between text-emerald-400 font-bold">
                     <span>
-                      Diskon {discountPercent > 0 ? `(${discountPercent}%)` : 'Referral'}:
+                      Diskon Kupon {discountPercent > 0 ? `(${discountPercent}%)` : ''}:
                     </span>
-                    <span className="font-mono">-{formatRupiah(discountAmount)}</span>
+                    <span className="font-mono">-{formatRupiah(voucherDiscount)}</span>
+                  </div>
+                )}
+
+                {pointsDiscount > 0 && (
+                  <div className="flex justify-between text-amber-400 font-bold">
+                    <span>Diskon Poin Loyalitas:</span>
+                    <span className="font-mono">-{formatRupiah(pointsDiscount)}</span>
                   </div>
                 )}
 
@@ -244,8 +323,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               </div>
 
               <button
-                onClick={() => onCheckout(discountAmount)}
-                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30 transition-transform active:scale-[0.98]"
+                onClick={() => onCheckout(totalDiscount, pointsRedeemed, pointsDiscount)}
+                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30 transition-transform active:scale-[0.98] cursor-pointer"
               >
                 <span>Lanjut ke Pembayaran</span>
                 <ArrowRight className="w-4 h-4" />

@@ -17,7 +17,7 @@ export const PRODUCTS_DATA: Product[] = [
     id: 'roblox-gamepass',
     name: 'Robux Via Link Gamepass',
     category: 'game',
-    categoryLabel: 'Top Up Game & Robux',
+    categoryLabel: 'Top Up & Akun Game',
     price: 35500,
     originalPrice: 45000,
     soldCount: 5410,
@@ -85,7 +85,7 @@ Top up robux nggak perlu nunggu sampai 5 hari baru masuk, Top up di kami hanya p
     id: 'roblox-login',
     name: 'Robux Via Login Kilat',
     category: 'game',
-    categoryLabel: 'Top Up Game & Robux',
+    categoryLabel: 'Top Up & Akun Game',
     price: 39500,
     originalPrice: 50000,
     soldCount: 3820,
@@ -151,7 +151,7 @@ Top up robux nggak perlu nunggu sampai 5 hari baru masuk, Top up di kami hanya p
     id: 'roblox-premium',
     name: 'Roblox Subs Premium',
     category: 'game',
-    categoryLabel: 'Top Up Game & Robux',
+    categoryLabel: 'Top Up & Akun Game',
     price: 50000,
     originalPrice: 65000,
     soldCount: 1640,
@@ -198,6 +198,93 @@ Top up robux nggak perlu nunggu sampai 5 hari baru masuk, Top up di kami hanya p
       { id: 'rbx-prem-500', name: '500 R$ Premium Subs', price: 50000, originalPrice: 65000, stock: 999, durationDays: 30, description: 'Badge Premium + 500 Robux + Benefit Trade' },
       { id: 'rbx-prem-1000', name: '1000 R$ Premium Subs', price: 110000, originalPrice: 135000, stock: 999, durationDays: 30, description: 'Badge Premium + 1.000 Robux + Benefit Trade' },
       { id: 'rbx-prem-2200', name: '2200 R$ Premium Subs', price: 209000, originalPrice: 260000, stock: 999, durationDays: 30, description: 'Badge Premium + 2.200 Robux + Benefit Trade' }
+    ]
+  },
+  {
+    id: 'freefire-sultan',
+    name: 'Akun Free Fire Sultan (Old Vault Rame)',
+    category: 'game',
+    categoryLabel: 'Top Up & Akun Game',
+    price: 35000,
+    originalPrice: 65000,
+    soldCount: 3840,
+    stockCount: 8,
+    isTrending: true,
+    deliveryType: 'instant',
+    deliveryTimeEstimate: 'Bayar Langsung Kirim',
+    brandColor: '#EA580C',
+    iconType: 'freefire',
+    badgeLabel: 'MONSEP & ANTI HB',
+    description: `🔥 AKUN FREE FIRE SULTAN READY STOCK (MONSEP & GARANSI ANTI HB)
+Store: Yuraa Store
+
+Ready stock akun Free Fire (FF) Sultan dengan vault lama, skin senjata Evo Gun, bundle old legendaris, dan rank tinggi!
+
+✅ 100% MONSEP (Data Monsep, email & password akun bisa langsung diubah total ke nomor & email pribadi pembeli)
+✅ GARANSI ANTI HACKBACK 30 HARI (Full replace / uang kembali jika terjadi kendala login)
+✅ PROSES KILAT OTOMATIS: Begitu bayar via DANA, kredensial login (Email, Password, Kode Cadangan & Panduan Amankan Akun) langsung muncul di layar & dikirim ke Email!
+✅ Akun fresh, bersih dari cheat/aplikasi pihak ketiga, siap diajak Ranked & Mabar
+
+📋 PILIHAN AKUN FREE FIRE:
+• Akun FF Polosan Lv 40+ (Siap Ranked): Rp 35.000
+• Akun FF Sultan Old Vault Rame + SG2: Rp 65.000
+• Akun FF Master + Booyah Pass Aktif: Rp 95.000
+• Akun FF Sultan Evo Gun Max (AK/MP40): Rp 150.000
+
+📌 CARA CLAIM & AMANKAN AKUN SETELAH TRANSAKSI:
+1. Login menggunakan akun Google / VK yang diberikan sistem toko
+2. Masuk ke setelan keamanan Google / VK, ganti kata sandi utama
+3. Kaitkan nomor handphone dan email pemulihan pribadi Anda
+4. Aktifkan Verifikasi 2 Langkah (2FA)
+5. Akun 100% sepenuhnya menjadi milik Anda!`,
+    features: [
+      '100% MONSEP & AMAN DARI HACKBACK (ANTI HB)',
+      'EMAIL, PASSWORD & KODE DIKIRIM INSTAN SETELAH BAYAR',
+      'VAULT RAME, BUNDLE OLD, SG2 & EMOTE EKSKLUSIF',
+      'GARANSI RESMI YURAA STORE 30 HARI'
+    ],
+    rules: [
+      'Segera ganti password & kaitkan nomor HP pemulihan pribadi setelah menerima akun',
+      'Wajib aktifkan Verifikasi 2 Langkah (2FA) demi keamanan maksimal',
+      'Garansi 30 hari berlaku selama tidak menggunakan cheat atau aplikasi pihak ketiga'
+    ],
+    variants: [
+      {
+        id: 'ff-polosan',
+        name: 'Akun FF Polosan Lv 40+ (Siap Ranked)',
+        price: 35000,
+        originalPrice: 60000,
+        stock: 15,
+        durationDays: 365,
+        description: 'Level 40+ • Siap tempur ranked • Monsep Google'
+      },
+      {
+        id: 'ff-sultan-old',
+        name: 'Akun FF Sultan Old Vault Rame + SG2',
+        price: 65000,
+        originalPrice: 120000,
+        stock: 8,
+        durationDays: 365,
+        description: 'Vault Rame • SG2 OPM / Incu • Emote langka • Monsep'
+      },
+      {
+        id: 'ff-master-pass',
+        name: 'Akun FF Master + Booyah Pass Aktif',
+        price: 95000,
+        originalPrice: 160000,
+        stock: 4,
+        durationDays: 365,
+        description: 'Rank Master • Booyah Pass aktif • Skin & Emote rame'
+      },
+      {
+        id: 'ff-evogun-max',
+        name: 'Akun FF Sultan Evo Gun Max (AK/MP40)',
+        price: 150000,
+        originalPrice: 275000,
+        stock: 2,
+        durationDays: 365,
+        description: 'Evo Gun Max Level 7 • Bundle langka • Full set sultan'
+      }
     ]
   },
   {

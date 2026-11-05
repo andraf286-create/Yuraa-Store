@@ -6,6 +6,7 @@ import { formatRupiah } from '../utils/formatters';
 
 interface ProductCardProps {
   product: Product;
+  index?: number;
   onSelectProduct: (product: Product) => void;
   onAddToCart: (product: Product, e: React.MouseEvent) => void;
   onQuickBuy: (product: Product, e: React.MouseEvent) => void;
@@ -13,16 +14,19 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({
   product,
+  index = 0,
   onSelectProduct,
   onAddToCart,
   onQuickBuy,
 }) => {
   const isSoldOut = product.isSoldOut || product.stockCount <= 0;
+  const isLimitedStock = !isSoldOut && product.stockCount < 5 && product.stockCount > 0;
 
   return (
     <div
       onClick={() => onSelectProduct(product)}
-      className="group relative flex flex-col justify-between rounded-2xl bg-white hover:bg-slate-50 dark:bg-[#121929] dark:hover:bg-[#152033] border border-slate-200 dark:border-slate-800/80 hover:border-blue-500/50 p-3.5 sm:p-4 transition-all duration-200 cursor-pointer shadow-md dark:shadow-lg hover:shadow-xl hover:shadow-blue-500/5"
+      style={{ animationDelay: `${Math.min(index * 40, 320)}ms` }}
+      className="group relative flex flex-col justify-between rounded-2xl bg-white hover:bg-slate-50 dark:bg-[#121929] dark:hover:bg-[#152033] border border-slate-200 dark:border-slate-800/80 hover:border-blue-500/50 p-3.5 sm:p-4 transition-all duration-200 cursor-pointer shadow-md dark:shadow-lg hover:shadow-xl hover:shadow-blue-500/5 animate-card-fade-in"
     >
       {/* Top Badges Area */}
       <div className="flex items-center justify-between gap-1 mb-2.5 min-h-6">
@@ -44,12 +48,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </span>
         )}
 
-        {/* Right Badge: Segera Habis */}
-        {product.isUrgent && !isSoldOut && (
+        {/* Right Badge: 'Stok Terbatas' if remaining stock < 5, or Segera Habis */}
+        {isLimitedStock ? (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-rose-500/20 to-amber-500/20 text-rose-600 dark:text-rose-400 text-[10px] font-black border border-rose-500/40 animate-pulse shadow-xs">
+            <Flame className="w-2.5 h-2.5 text-rose-500 fill-rose-500" />
+            <span>Stok Terbatas</span>
+          </span>
+        ) : product.isUrgent && !isSoldOut ? (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/20 text-red-600 dark:text-red-300 text-[10px] font-bold border border-red-500/30 animate-pulse">
             SEGERA HABIS
           </span>
-        )}
+        ) : null}
       </div>
 
       {/* Brand Icon Showcase Box */}
@@ -136,7 +145,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <button
               onClick={(e) => onQuickBuy(product, e)}
               className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-black tracking-wide shadow-md shadow-blue-600/30 transition-all flex items-center justify-center gap-1.5 active:scale-95 border border-blue-400/30 cursor-pointer"
-              title="Langsung Beli & Bayar Cepat via DANA / QRIS"
+              title="Langsung Beli & Bayar Cepat via DANA"
             >
               <Zap className="w-3.5 h-3.5 fill-white" />
               <span>QUICK BUY (BAYAR CEPAT)</span>

@@ -15,13 +15,13 @@ import {
   Mail,
   Send,
   ExternalLink,
+  Coins,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { Order, DeliveredAccount } from '../types';
 import { STORE_INFO } from '../data/products';
 import { formatRupiah, formatDateTime } from '../utils/formatters';
-import { dispenseAccountForProduct } from '../utils/storage';
-import { OfficialQRISCard } from './OfficialQRISCard';
+import { dispenseAccountForProduct, calculatePointsEarned } from '../utils/storage';
 
 interface PaymentModalProps {
   order: Order;
@@ -36,7 +36,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   onClose,
   onPaymentSuccess,
 }) => {
-  const [selectedMethod, setSelectedMethod] = useState<'dana' | 'qris'>('dana');
+  const selectedMethod = 'dana';
   const [copiedDana, setCopiedDana] = useState(false);
   const [copiedAmount, setCopiedAmount] = useState(false);
   const [copiedCredIndex, setCopiedCredIndex] = useState<number | null>(null);
@@ -52,7 +52,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   // Visual Verification Progress & Skeleton Loading State
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyProgress, setVerifyProgress] = useState(0);
-  const [verifyStepText, setVerifyStepText] = useState('Menghubungi sistem pembayaran DANA & QRIS...');
+  const [verifyStepText, setVerifyStepText] = useState('Menghubungi sistem pembayaran DANA...');
 
   useEffect(() => {
     if (!isOpen) return;
@@ -118,7 +118,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 ${itemsList}
 
 💰 Total Bayar: ${formatRupiah(order.totalAmount)}
-💳 Metode: ${selectedMethod === 'dana' ? 'DANA (' + STORE_INFO.danaNumber + ')' : 'QRIS Instan'}
+💳 Metode: DANA (${STORE_INFO.danaNumber} a/n ${STORE_INFO.danaName})
 
 Berikut saya lampirkan bukti pembayarannya ya Kak. Mohon bantu proses secepatnya (Robux / Akun), terima kasih!`;
 
@@ -129,7 +129,7 @@ Berikut saya lampirkan bukti pembayarannya ya Kak. Mohon bantu proses secepatnya
   const handleStartVerification = () => {
     setIsVerifying(true);
     setVerifyProgress(10);
-    setVerifyStepText('Menghubungi sistem mutasi DANA & QRIS...');
+    setVerifyStepText('Menghubungi sistem mutasi DANA...');
 
     // Progress timeline simulation
     setTimeout(() => {
@@ -179,11 +179,14 @@ Berikut saya lampirkan bukti pembayarannya ya Kak. Mohon bantu proses secepatnya
       return dispenseAccountForProduct(it.productId, order.invoiceNumber);
     });
 
+    const pointsEarned = order.pointsEarned || calculatePointsEarned(order.totalAmount);
+
     const updatedOrder: Order = {
       ...order,
       paymentStatus: 'paid',
       paidAt: Date.now(),
       deliveredAccounts: delivered,
+      pointsEarned,
     };
 
     setCredentials(delivered);
@@ -331,6 +334,26 @@ Berikut saya lampirkan bukti pembayarannya ya Kak. Mohon bantu proses secepatnya
               <p className="text-xs text-emerald-300">
                 Akun premium Anda telah aktif dan siap digunakan sekarang juga.
               </p>
+            </div>
+
+            {/* Loyalty Points Earned / Cashback Banner */}
+            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-amber-500/15 border border-amber-500/40 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+                  <Coins className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-amber-400 tracking-wider block">
+                    Poin Loyalitas Masuk ke Dompet
+                  </span>
+                  <span className="text-xs text-slate-200">
+                    Selamat! Anda memperoleh <strong className="text-amber-400 font-mono">+{order.pointsEarned || calculatePointsEarned(order.totalAmount)} Poin</strong> loyalitas.
+                  </span>
+                </div>
+              </div>
+              <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono">
+                +{order.pointsEarned || calculatePointsEarned(order.totalAmount)} PTS
+              </span>
             </div>
 
             {/* Visual Toast Alert for Email Delivery */}
@@ -620,91 +643,87 @@ Berikut saya lampirkan bukti pembayarannya ya Kak. Mohon bantu proses secepatnya
                 <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-800/80 text-emerald-400 font-bold">
                   <span className="flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Diskon Kupon / Referral Diterapkan:</span>
+                    <span>Diskon Kupon / Promo Diterapkan:</span>
                   </span>
                   <span className="font-mono">-{formatRupiah(order.discountAmount)}</span>
                 </div>
               )}
-            </div>
 
-            {/* Payment Method Tabs */}
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => setSelectedMethod('dana')}
-                className={`py-2.5 px-3 rounded-2xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${
-                  selectedMethod === 'dana'
-                    ? 'bg-sky-600 text-white shadow-lg shadow-sky-600/30 border border-sky-400/50'
-                    : 'bg-slate-800/80 text-slate-400 hover:text-white border border-slate-700'
-                }`}
-              >
-                <span>DANA Instan</span>
-              </button>
-              <button
-                onClick={() => setSelectedMethod('qris')}
-                className={`py-2.5 px-3 rounded-2xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${
-                  selectedMethod === 'qris'
-                    ? 'bg-red-600 text-white shadow-lg shadow-red-600/30 border border-red-400/50'
-                    : 'bg-slate-800/80 text-slate-400 hover:text-white border border-slate-700'
-                }`}
-              >
-                <span>QRIS (Semua Bank/E-Wallet)</span>
-              </button>
-            </div>
-
-            {/* DANA Method Content */}
-            {selectedMethod === 'dana' ? (
-              <div className="space-y-3.5 p-4 rounded-2xl bg-sky-950/40 border border-sky-500/30">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-sky-400 uppercase tracking-wide">
-                    TRANSFER APLIKASI DANA
+              {order.pointsDiscountAmount && order.pointsDiscountAmount > 0 ? (
+                <div className="flex items-center justify-between text-xs pt-1.5 border-t border-slate-800/80 text-amber-400 font-bold">
+                  <span className="flex items-center gap-1.5">
+                    <Coins className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Tukar Poin Loyalitas ({order.pointsRedeemed} Poin):</span>
                   </span>
-                  <span className="text-[10px] text-sky-300 font-mono">Bebas Biaya Admin</span>
+                  <span className="font-mono">-{formatRupiah(order.pointsDiscountAmount)}</span>
                 </div>
+              ) : null}
 
-                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+              <div className="flex items-center justify-between text-[11px] pt-2 border-t border-slate-800/70 text-slate-300">
+                <span className="flex items-center gap-1.5">
+                  <Coins className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Reward Poin Transaksi Sukses:</span>
+                </span>
+                <span className="font-mono font-bold text-amber-400">
+                  +{order.pointsEarned || calculatePointsEarned(order.totalAmount)} Poin
+                </span>
+              </div>
+            </div>
+
+            {/* DANA Payment Method Section (Exclusive) */}
+            <div className="space-y-3.5 p-4 rounded-2xl bg-gradient-to-b from-sky-950/60 to-slate-900 border border-sky-500/40 shadow-lg shadow-sky-950/30">
+              <div className="flex items-center justify-between pb-2 border-b border-sky-900/40">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-sky-500 flex items-center justify-center font-black text-white text-sm shadow-md shadow-sky-500/30">
+                    D
+                  </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block">
-                      NOMOR DANA ({STORE_INFO.danaName})
+                    <span className="text-xs font-black text-sky-400 uppercase tracking-wide block">
+                      PEMBAYARAN RESMI: DANA INSTAN
                     </span>
-                    <span className="text-lg font-black text-sky-400 font-mono tracking-wider">
-                      {STORE_INFO.danaNumber}
+                    <span className="text-[10px] text-slate-400 block">
+                      Transfer Cepat &amp; Bebas Biaya Admin
                     </span>
                   </div>
-                  <button
-                    onClick={handleCopyDana}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs active:scale-95 transition-transform"
-                  >
-                    {copiedDana ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>{copiedDana ? 'Tersalin' : 'Salin'}</span>
-                  </button>
                 </div>
+                <span className="text-[10px] bg-sky-500/20 text-sky-300 font-mono font-bold px-2 py-0.5 rounded-full border border-sky-500/30">
+                  Bebas Biaya Admin
+                </span>
+              </div>
 
+              {/* DANA Number Box */}
+              <div className="p-3.5 rounded-xl bg-slate-950/90 border border-slate-800 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">
+                    NOMOR DANA ({STORE_INFO.danaName})
+                  </span>
+                  <span className="text-lg sm:text-xl font-black text-sky-400 font-mono tracking-wider">
+                    {STORE_INFO.danaNumber}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCopyDana}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs active:scale-95 transition-transform shadow-md shadow-sky-600/30 cursor-pointer"
+                >
+                  {copiedDana ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedDana ? 'Tersalin' : 'Salin Nomor'}</span>
+                </button>
+              </div>
+
+              {/* Step Guide */}
+              <div className="bg-sky-950/30 p-3 rounded-xl border border-sky-900/30">
+                <span className="text-[11px] font-bold text-sky-300 uppercase tracking-wider block mb-1.5">
+                  Petunjuk Transfer DANA:
+                </span>
                 <ol className="text-xs text-slate-300 space-y-1.5 list-decimal pl-4">
-                  <li>Buka aplikasi DANA di HP Anda</li>
+                  <li>Buka aplikasi <strong>DANA</strong> di HP Anda</li>
                   <li>Pilih menu <strong>Kirim</strong> lalu masukkan nomor <strong>{STORE_INFO.danaNumber}</strong></li>
-                  <li>Masukkan nominal <strong>{formatRupiah(order.totalAmount)}</strong></li>
-                  <li>Konfirmasi transfer &amp; simpan bukti pembayaran</li>
+                  <li>Masukkan nominal transfer: <strong className="text-sky-300 font-mono">{formatRupiah(order.totalAmount)}</strong></li>
+                  <li>Konfirmasi transfer &amp; lampirkan foto bukti pembayaran di bawah</li>
                 </ol>
               </div>
-            ) : (
-              /* QRIS Method Content - Official Placard */
-              <div className="space-y-3 p-3 sm:p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col items-center">
-                <div className="text-center mb-1">
-                  <span className="text-xs font-bold text-slate-200 block">
-                    Scan QRIS Resmi Pembayaran Nasional
-                  </span>
-                  <span className="text-[11px] text-slate-400">
-                    Bisa via BCA, Mandiri, BRI, BNI, GoPay, OVO, ShopeePay, DANA &amp; M-Banking
-                  </span>
-                </div>
-
-                <OfficialQRISCard
-                  amount={order.totalAmount}
-                  invoiceNumber={order.id}
-                  showActions={true}
-                />
-              </div>
-            )}
+            </div>
 
             {/* Upload Proof or Direct WhatsApp Confirmation */}
             <div className="space-y-2.5">

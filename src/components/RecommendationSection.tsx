@@ -15,8 +15,8 @@ export const RecommendationSection: React.FC<RecommendationSectionProps> = ({
   onSelectProduct,
   onQuickBuy,
 }) => {
-  // Take recommendation IDs: viki-rakuten, spotify-premium, netflix-uhd, prime-video
-  const recommendedIds = ['viki-rakuten', 'spotify-premium', 'netflix-uhd', 'prime-video'];
+  // Take recommendation IDs: freefire-sultan, netflix-uhd, prime-video, spotify-premium
+  const recommendedIds = ['freefire-sultan', 'netflix-uhd', 'prime-video', 'spotify-premium'];
   const recommendedProducts = products.filter((p) => recommendedIds.includes(p.id));
 
   return (

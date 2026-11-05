@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, User, Lock, Mail, Phone, ShieldCheck, Wallet, History, LogOut, CheckCircle, Copy, KeyRound } from 'lucide-react';
+import { X, User, Lock, Mail, Phone, ShieldCheck, Wallet, History, LogOut, CheckCircle, Copy, KeyRound, Coins, Sparkles } from 'lucide-react';
 import { UserProfile, Order } from '../types';
 import { DEFAULT_USER } from '../utils/storage';
 import { formatRupiah, formatDateTime } from '../utils/formatters';
@@ -14,6 +14,7 @@ interface AuthModalProps {
   orders: Order[];
   onSelectOrderForPayment: (order: Order) => void;
   onOpenAdminPanel?: () => void;
+  onOpenLoyaltyModal?: () => void;
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({
@@ -25,6 +26,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   orders,
   onSelectOrderForPayment,
   onOpenAdminPanel,
+  onOpenLoyaltyModal,
 }) => {
   const [activeTab, setActiveTab] = useState<'login' | 'register' | 'profile' | 'orders' | 'topup'>(
     user ? 'profile' : 'login'
@@ -292,6 +294,49 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <p>📱 {user.whatsapp}</p>
                   <p>✉️ {user.email}</p>
                 </div>
+              </div>
+
+              {/* Loyalty Points Card */}
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-amber-500/5 border border-amber-500/30 space-y-2.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-amber-400 flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
+                    <Coins className="w-4 h-4" />
+                    POIN LOYALITAS SAYA
+                  </span>
+                  <span className="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                    Nilai: {formatRupiah((user.loyaltyPoints || 0) * 1)}
+                  </span>
+                </div>
+
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-black text-white font-mono">
+                    {(user.loyaltyPoints || 0).toLocaleString('id-ID')}
+                  </span>
+                  <span className="text-xs font-bold text-amber-400 font-mono">POIN</span>
+                </div>
+
+                <div className="pt-2 border-t border-amber-500/20 flex items-center justify-between text-[11px] text-slate-300">
+                  <span>Cashback Tiap Belanja:</span>
+                  <span className="text-amber-400 font-bold">+10 Poin per Rp 1.000 (Tier {user.tier})</span>
+                </div>
+
+                <p className="text-[10px] text-slate-400">
+                  💡 Poin bisa langsung ditukarkan di keranjang checkout untuk memotong tagihan belanja berikutnya!
+                </p>
+
+                {onOpenLoyaltyModal && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onOpenLoyaltyModal();
+                    }}
+                    className="w-full py-1.5 px-3 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 text-[11px] font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer mt-1"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Lihat Rincian Multiplier &amp; Benefit Tier</span>
+                  </button>
+                )}
               </div>
 
               <div className="flex gap-2">

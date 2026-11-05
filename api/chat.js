@@ -29,7 +29,7 @@ export default async function handler(req, res) {
       model: 'gemini-2.5-flash',
       contents: contents,
       config: {
-        systemInstruction: "Kamu adalah Yuraa Panda AI, asisten jualan resmi Yuraa Store yang ramah dan membantu pembeli memilih layanan digital streaming (Netflix, Disney+, dll.) serta menjelaskan cara pembayaran via DANA 08984436849 atau QRIS.",
+        systemInstruction: "Kamu adalah Yuraa Panda AI, asisten jualan resmi Yuraa Store yang ramah dan membantu pembeli memilih ready stock Akun Free Fire Sultan Monsep Anti Hackback, top up Robux 5 menit, layanan digital streaming (Netflix, Disney+, dll.) serta menjelaskan cara pembayaran via nomor DANA resmi 08984436849.",
       }
     });
 

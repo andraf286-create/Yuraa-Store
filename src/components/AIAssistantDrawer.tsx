@@ -43,7 +43,33 @@ export const getLocalAssistantAnswer = (query: string): string => {
 🛡️ Keduanya bergaransi resmi **100% Full Replace** dari Yuraa Store ya Kak! Kakak tertarik ambil yang mana? 😊`;
   }
 
-  // 2. Roblox & Robux Top Up
+  // 2. Free Fire Accounts Ready Stock
+  if (
+    q.includes('fire') ||
+    q.includes('free fire') ||
+    q.includes('ff') ||
+    q.includes('sultan') ||
+    q.includes('evogun') ||
+    q.includes('monsep')
+  ) {
+    return `Halo Kak! 🔥 Kami punya **Ready Stock Akun Free Fire Sultan (Anti Hackback)** di Yuraa Store:
+
+🛡️ **Keunggulan Akun FF Yuraa Store**:
+• **100% Monsep**: Data akun (email & password) bisa langsung diganti total ke nomor HP & email pribadi Kakak!
+• **Garansi Anti Hackback (Anti HB) 30 Hari**: Jaminan replace atau uang kembali jika ada kendala.
+• **Kirim Instan**: Begitu bayar via DANA (\`${STORE_INFO.danaNumber}\`), data login langsung muncul di layar & dikirim ke email!
+• **Vault Rame, Old & Siap Ranked**: Akun fresh anti cheat.
+
+📋 **Daftar Pilihan Akun FF**:
+• **Akun FF Polosan Lv 40+ (Siap Ranked)**: Rp 35.000
+• **Akun FF Sultan Old Vault Rame + SG2**: Rp 65.000
+• **Akun FF Master + Booyah Pass Aktif**: Rp 95.000
+• **Akun FF Sultan Evo Gun Max (AK/MP40)**: Rp 150.000
+
+Stok terbatas ya Kak! Mau langsung pesan sekarang via DANA? 🐼🔥`;
+  }
+
+  // 3. Roblox & Robux Top Up
   if (
     q.includes('robux') ||
     q.includes('roblox') ||
@@ -67,7 +93,7 @@ Tersedia 3 metode pilihan resmi & aman:
 • Dapatkan badge Premium resmi di avatar, bonus 10% Robux extra tiap belanja game, dan benefit trading!
 • 500 R$ (Rp 50.000) | 1000 R$ (Rp 110.000) | 2200 R$ (Rp 209.000).
 
-Pembayaran via **DANA 08984436849** atau scan QRIS. Robux langsung kami proses dalam 5 menit! ⚡`;
+Pembayaran via **DANA 08984436849**. Robux langsung kami proses dalam 5 menit! ⚡`;
   }
 
   // 3. Netflix
@@ -87,12 +113,12 @@ Semua bergaransi full replace dan support di Smart TV, HP, Laptop, & Tablet! Mau
     q.includes('bayar') ||
     q.includes('pembayaran') ||
     q.includes('rekening') ||
-    q.includes('qris') ||
     q.includes('transfer')
   ) {
-    return `Halo Kak! 💳 Pembayaran di Yuraa Store sangat mudah:
-• **DANA**: \`${STORE_INFO.danaNumber}\` (A/N ${STORE_INFO.danaName})
-• **QRIS Resmi**: Scan QRIS merchant **${STORE_INFO.qrisMerchantName}** (NMID: \`${STORE_INFO.qrisNmid}\`). Bisa dibayar via semua Bank (BCA, Mandiri, BRI, BNI) & e-wallet (GoPay, OVO, ShopeePay, DANA).
+    return `Halo Kak! 💳 Pembayaran di Yuraa Store menggunakan transfer nomor DANA resmi:
+• **Nomor DANA**: \`${STORE_INFO.danaNumber}\`
+• **Atas Nama**: **${STORE_INFO.danaName}**
+• **Biaya Admin**: Bebas Biaya Admin (Rp 0)
 
 Setelah transfer, klik tombol **"Kirim Bukti Pembayaran ke WhatsApp"** di website atau hubungi WA **${STORE_INFO.whatsappDisplay}** agar pesanan langsung diverifikasi & dikirimkan secepat kilat! ⚡`;
   }
@@ -126,7 +152,7 @@ Ada yang bisa saya bantu carikan hari ini?
 • Tanya perbedaan **Sharing Profile vs Private Profile**
 • Top Up **Robux kilat 5 menit** (Via Gamepass / Via Login / Subs Premium)
 • Rekomendasi akun streaming (Netflix, Spotify, Prime Video, Disney+)
-• Cara pembayaran via **DANA ${STORE_INFO.danaNumber}** atau scan QRIS
+• Cara pembayaran via **DANA ${STORE_INFO.danaNumber}**
 
 Silakan tanyakan apa saja ya Kak, saya siap menjawab dengan jelas! 😊`;
 };
@@ -143,10 +169,11 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
       content: `Halo Kak! 🐼 Saya **Yuraa Panda AI**, asisten jualan resmi Yuraa Store.
 
 Ada yang bisa saya bantu hari ini?
-• Tanya **Perbedaan Sharing Profile vs Private Profile**
+• Ready Stock **Akun Free Fire Sultan (Monsep & Anti HB)**
 • Top Up **Robux Roblox kilat 5 menit** (Via Gamepass / Via Login / Subs Premium)
+• Tanya **Perbedaan Sharing Profile vs Private Profile**
 • Rekomendasi akun Netflix UHD 4K, Spotify, Canva Pro
-• Info pembayaran via **DANA 08984436849** atau QRIS
+• Info pembayaran via **DANA 08984436849**
 
 Tanyakan apa saja pertanyaan atau keluhan Kakak ya! 😊`,
       timestamp: 'Baru saja',
@@ -157,8 +184,9 @@ Tanyakan apa saja pertanyaan atau keluhan Kakak ya! 😊`,
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const quickPrompts = [
-    'Beda Sharing vs Private profile',
+    'Akun Free Fire Sultan Monsep',
     'Top Up Robux kilat 5 menit',
+    'Beda Sharing vs Private profile',
     'Rekomendasi Netflix UHD 4K',
     'Cara bayar via DANA 08984436849',
     'Apakah akun legal & bergaransi?',

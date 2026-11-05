@@ -37,7 +37,7 @@ export const Hero: React.FC<HeroProps> = ({ onScrollToProducts, onOpenConsultMod
                 </h1>
                 <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed pt-2 max-w-lg">
                   Aman, cepat, bergaransi, dan terpercaya hanya di{' '}
-                  <span className="text-blue-600 dark:text-white font-bold">yuraastore.id</span>. Pembayaran instan via DANA &amp; QRIS dengan proses hitungan menit!
+                  <span className="text-blue-600 dark:text-white font-bold">yuraastore.id</span>. Pembayaran instan via DANA dengan proses hitungan menit!
                 </p>
               </div>
 

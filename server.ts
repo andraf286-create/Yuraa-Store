@@ -85,7 +85,25 @@ Tersedia 3 metode pilihan resmi:
 • Dapatkan badge Premium resmi di profil, bonus 10% Robux extra tiap beli game, dan benefit trading!
 • 500 R$ (Rp 50.000) | 1000 R$ (Rp 110.000) | 2200 R$ (Rp 209.000).
 
-Pembayaran via **DANA 08984436849** atau QRIS. Robux langsung kami kirim dalam 5 menit ya Kak! 🐼⚡`;
+Pembayaran via **DANA 08984436849**. Robux langsung kami kirim dalam 5 menit ya Kak! 🐼⚡`;
+    }
+
+    // 2. Free Fire Accounts Ready Stock
+    if (
+      q.includes('fire') ||
+      q.includes('free fire') ||
+      q.includes('ff') ||
+      q.includes('sultan') ||
+      q.includes('evogun') ||
+      q.includes('monsep')
+    ) {
+      return `Halo Kak! 🔥 Kami punya **Ready Stock Akun Free Fire Sultan (Anti Hackback)** di Yuraa Store:
+• **100% Monsep**: Data akun (email & password) bisa langsung diganti total ke email & nomor HP pribadi Kakak!
+• **Garansi Anti Hackback (Anti HB) 30 Hari**: Garansi replace ganti baru atau uang kembali.
+• **Pengiriman Instan**: Begitu bayar via DANA (\`08984436849\`), data login langsung muncul di layar & dikirim ke email!
+• **Pilihan**: Polosan Lv 40+ (Rp 35rb), Sultan Old SG2 (Rp 65rb), Master Booyah Pass (Rp 95rb), Sultan Evo Gun Max (Rp 150rb).
+
+Stok sangat terbatas Kak, yuk langsung order via DANA! 🐼🔥`;
     }
 
     // 3. Netflix
@@ -105,12 +123,11 @@ Semua bergaransi full replace dan support di HP, Laptop, Tablet, & Smart TV Kak!
       q.includes('bayar') ||
       q.includes('pembayaran') ||
       q.includes('rekening') ||
-      q.includes('qris') ||
       q.includes('transfer')
     ) {
-      return `Halo Kak! 💳 Pembayaran di Yuraa Store sangat mudah:
-• **DANA**: \`08984436849\` (A/N YURAA STORE)
-• **QRIS Instan**: Scan langsung via BCA, Mandiri, BRI, BNI, GoPay, OVO, ShopeePay.
+      return `Halo Kak! 💳 Pembayaran di Yuraa Store menggunakan transfer nomor DANA resmi:
+• **Nomor DANA**: \`08984436849\` (A/N YURAA STORE)
+• **Biaya Admin**: Rp 0 (Bebas Biaya Admin)
 
 Setelah transfer, klik tombol **"Kirim Bukti Pembayaran ke WhatsApp"** di website kami atau hubungi WA **08984436849** agar pesanan langsung kami verifikasi & kirimkan secepat kilat! ⚡`;
     }
@@ -141,10 +158,11 @@ Semua akun dan top up Robux kami legal & resmi dibeli melalui jalur official. Ji
 
     return `Halo Kak! 🐼 Saya **Yuraa Panda AI**, asisten jualan resmi Yuraa Store.
 Ada yang bisa saya bantu?
-• Rekomendasi akun streaming (Netflix, Prime, Disney+, HBO Max)
+• Ready Stock Akun Free Fire Sultan Monsep (Anti Hackback)
 • Top Up Robux kilat 5 menit (Via Gamepass / Via Login / Subs Premium)
+• Rekomendasi akun streaming (Netflix, Prime, Disney+, HBO Max)
 • Perbedaan akun Sharing vs Private
-• Pembayaran via DANA (08984436849) atau scan QRIS
+• Pembayaran via DANA (08984436849)
 
 Silakan tanyakan pertanyaan atau keluhan Kakak, saya siap bantu! 😊`;
   };
@@ -164,25 +182,31 @@ Silakan tanyakan pertanyaan atau keluhan Kakak, saya siap bantu! 😊`;
 
     // Call Gemini API via @google/genai SDK
     const systemInstruction = `Kamu adalah 'Yuraa Panda AI', asisten jualan resmi dari Yuraa Store (yuraastore.id).
-Toko ini menjual akun langganan premium digital (Netflix UHD 4K, Spotify, Prime Video, Disney+, HBO Max, Viu, Canva, YouTube, ChatGPT, Vidio, Pulsa) dan TOP UP ROBUX ROBLOX KILAT 5 MENIT.
+Toko ini menjual akun game ready stock (Akun Free Fire Sultan Monsep Anti Hackback), akun langganan premium digital (Netflix UHD 4K, Spotify, Prime Video, Disney+, HBO Max, Viu, Canva, YouTube, ChatGPT, Vidio, Pulsa) dan TOP UP ROBUX ROBLOX KILAT 5 MENIT.
 Nomor DANA Pembayaran toko: 08984436849 (A/N YURAA STORE).
 WhatsApp CS: 08984436849 (+62 898-4436-849).
 
 Pengetahuan Produk Penting:
-1. PERBEDAAN SHARING VS PRIVATE:
+1. AKUN FREE FIRE (FF) SULTAN READY STOCK:
+- 100% Monsep (Bisa ganti ke email & nomor HP pribadi pembeli).
+- Garansi Anti Hackback (Anti HB) 30 Hari.
+- Pengiriman instan otomatis setelah bayar via DANA (08984436849).
+- Pilihan: Akun FF Polosan Lv 40+ Siap Ranked (Rp 35.000), Sultan Old Vault Rame + SG2 (Rp 65.000), Master + Booyah Pass Aktif (Rp 95.000), Sultan Evo Gun Max Lv 7 (Rp 150.000).
+
+2. PERBEDAAN SHARING VS PRIVATE:
 - Sharing Profile: 1 profil digunakan berdua (2 pengguna). Harga paling hemat (Netflix Rp 28.500/bln), kualitas 4K UHD, tapi ada kemungkinan limit screen jika dipakai bersamaan.
 - Private Profile: 1 profil khusus 1 pengguna (hanya pembeli sendiri). Bebas pasang PIN profil, nyaman, anti limit screen (Netflix Rp 47.500/bln).
 
-2. TOP UP ROBUX ROBLOX (PROSES 5 MENIT, ANTI NUNGGU 5 HARI!):
+3. TOP UP ROBUX ROBLOX (PROSES 5 MENIT, ANTI NUNGGU 5 HARI!):
 - Robux Via Link Gamepass: Hanya butuh Username Roblox (tanpa password!). Pajak 30% ditanggung toko, Robux bersih masuk. Harga mulai 500 R$ (Rp 35.500) sampai 5.000 R$ (Rp 363.000).
 - Robux Via Login: Butuh Username & Password Roblox. Cocok jika tidak mau buat gamepass. Harga mulai 500 R$ (Rp 39.500) sampai 5.000 R$ (Rp 377.000).
 - Roblox Subs Premium: Butuh Username & Password. Dapatkan badge Premium di avatar, bonus 10% Robux extra tiap belanja game, dan bonus Robux (500 R$ Rp 50.000 | 1000 R$ Rp 110.000 | 2200 R$ Rp 209.000).
 
-3. PEMBAYARAN:
-- Transfer DANA ke 08984436849 (A/N YURAA STORE) atau Scan QRIS Instan.
+4. PEMBAYARAN:
+- Transfer nomor DANA resmi ke 08984436849 (A/N YURAA STORE). Bebas biaya admin (Rp 0).
 - Kirim bukti pembayaran ke WhatsApp toko (08984436849) untuk verifikasi instan.
 
-4. GARANSI:
+5. GARANSI:
 - Garansi 100% Full Replace selama periode aktif.
 
 Aturan Karakter & Jawaban:

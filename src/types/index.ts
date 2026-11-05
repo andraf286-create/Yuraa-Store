@@ -112,6 +112,9 @@ export interface Order {
   robloxPassword?: string;
   robloxMethod?: 'gamepass' | 'login' | 'premium';
   robloxGamepassUrl?: string;
+  pointsEarned?: number;
+  pointsRedeemed?: number;
+  pointsDiscountAmount?: number;
 }
 
 export interface UserProfile {
@@ -120,6 +123,7 @@ export interface UserProfile {
   email: string;
   whatsapp: string;
   balance: number;
+  loyaltyPoints?: number;
   avatarUrl?: string;
   isMember: boolean;
   tier: 'Silver' | 'Gold' | 'VIP';

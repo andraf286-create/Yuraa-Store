@@ -12,7 +12,7 @@ interface CategoryFilterProps {
 
 export const CATEGORIES_LIST: { id: ProductCategory; label: string; icon: React.ReactNode }[] = [
   { id: 'all', label: 'Semua', icon: <Sparkles className="w-3.5 h-3.5" /> },
-  { id: 'game', label: 'Top Up Game & Robux', icon: <Gamepad2 className="w-3.5 h-3.5" /> },
+  { id: 'game', label: 'Top Up & Akun Game', icon: <Gamepad2 className="w-3.5 h-3.5" /> },
   { id: 'pulsa', label: 'Pulsa', icon: <Smartphone className="w-3.5 h-3.5" /> },
   { id: 'paket_data', label: 'Paket Data', icon: <BarChart3 className="w-3.5 h-3.5" /> },
   { id: 'streaming', label: 'Streaming', icon: <Film className="w-3.5 h-3.5" /> },

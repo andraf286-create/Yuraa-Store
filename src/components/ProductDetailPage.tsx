@@ -339,7 +339,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     const text = encodeURIComponent(
       `Halo Admin Yuraa Store 🐼, saya mau pesan:\n- Produk: ${product.name}\n- Variasi: ${selectedVariant.name}\n- Harga: ${formatRupiah(
         selectedVariant.price
-      )}${extraRoblox}\n- Nama: ${customerName || 'Pelanggan'}\n- No WA: ${whatsapp || '-'}\n\nSaya mau bayar via DANA ${STORE_INFO.danaNumber} / QRIS. Mohon segera diproses ya!`
+      )}${extraRoblox}\n- Nama: ${customerName || 'Pelanggan'}\n- No WA: ${whatsapp || '-'}\n\nSaya mau bayar via DANA ${STORE_INFO.danaNumber}. Mohon segera diproses ya!`
     );
     window.open(`https://wa.me/${STORE_INFO.whatsappNumber}?text=${text}`, '_blank');
   };
@@ -1070,7 +1070,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
             </div>
 
             <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
-              💡 <em>Setelah transfer, kirim bukti pembayaran QRIS / DANA langsung ke WhatsApp toko untuk verifikasi &amp; pengisian otomatis!</em>
+              💡 <em>Setelah transfer, kirim bukti pembayaran DANA langsung ke WhatsApp toko untuk verifikasi &amp; pengisian otomatis!</em>
             </p>
           </div>
 

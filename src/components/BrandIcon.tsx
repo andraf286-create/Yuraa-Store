@@ -244,6 +244,20 @@ export const BrandIcon: React.FC<BrandIconProps> = ({ iconType, className = '', 
         </div>
       );
 
+    case 'freefire':
+    case 'ff':
+      return (
+        <div className={`bg-gradient-to-br from-amber-500 via-orange-600 to-red-700 flex flex-col items-center justify-center ${currentSize} ${className} shadow-md border border-amber-400/50 relative overflow-hidden group`}>
+          <div className="flex items-center justify-center font-black text-white text-base sm:text-xl tracking-tighter leading-none italic font-sans drop-shadow-md">
+            <span>F</span>
+            <span className="text-amber-200">F</span>
+          </div>
+          <span className="text-[7px] sm:text-[8px] font-black text-amber-100 tracking-wider uppercase drop-shadow-xs mt-0.5">
+            FREE FIRE
+          </span>
+        </div>
+      );
+
     default:
       return (
         <div className={`bg-blue-600 flex items-center justify-center text-white font-bold ${currentSize} ${className} shadow-md`}>

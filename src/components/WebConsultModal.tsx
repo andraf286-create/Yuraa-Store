@@ -41,7 +41,7 @@ export const WebConsultModal: React.FC<WebConsultModalProps> = ({ isOpen, onClos
           <div className="space-y-2 p-3.5 rounded-2xl bg-slate-900 border border-slate-800">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>Sistem Pembayaran DANA (08984436849) &amp; QRIS Otomatis</span>
+              <span>Sistem Pembayaran DANA (08984436849) Otomatis</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
