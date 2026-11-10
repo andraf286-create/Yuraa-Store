@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   X,
   Lock,
   Unlock,
   ShieldCheck,
   Search,
+  Filter,
   CheckCircle,
   AlertTriangle,
   RefreshCw,
@@ -31,6 +32,13 @@ import {
   Moon,
   BarChart3,
   TrendingUp,
+  Download,
+  FileSpreadsheet,
+  CheckSquare,
+  Square,
+  ChevronDown,
+  CheckCheck,
+  Wallet,
 } from 'lucide-react';
 import { Product, Order, AccountInventoryItem } from '../types';
 import { BrandIcon } from './BrandIcon';
@@ -68,6 +76,7 @@ interface AdminControlPanelModalProps {
   onResetAllOverrides: () => void;
   orders: Order[];
   onUpdateOrderStatus?: (orderId: string, status: 'pending' | 'paid' | 'cancelled' | 'refunded') => void;
+  onBulkUpdateOrderStatus?: (orderIds: string[], status: 'pending' | 'paid' | 'cancelled' | 'refunded') => void;
   onOrdersChange?: () => void;
   darkMode?: boolean;
   onToggleTheme?: () => void;
@@ -81,6 +90,7 @@ export const AdminControlPanelModal: React.FC<AdminControlPanelModalProps> = ({
   onResetAllOverrides,
   orders,
   onUpdateOrderStatus,
+  onBulkUpdateOrderStatus,
   onOrdersChange,
   darkMode: propDarkMode,
   onToggleTheme: propToggleTheme,
@@ -99,6 +109,68 @@ export const AdminControlPanelModal: React.FC<AdminControlPanelModalProps> = ({
   // Active Tab: 'stock' | 'credentials' | 'analytics' | 'orders' | 'deleted_history' | 'security'
   const [activeTab, setActiveTab] = useState<'stock' | 'credentials' | 'analytics' | 'orders' | 'deleted_history' | 'security'>('stock');
 
+  // Multi-select state for bulk order status updates
+  const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
+  const [showBulkStatusDropdown, setShowBulkStatusDropdown] = useState(false);
+
+  // Search & Status filter state for orders
+  const [orderSearchQuery, setOrderSearchQuery] = useState('');
+  const [orderStatusFilter, setOrderStatusFilter] = useState<'all' | 'paid' | 'pending' | 'cancelled' | 'refunded'>('all');
+
+  // Filtered orders memo based on search query and status filter
+  const filteredOrders = useMemo(() => {
+    return orders.filter((o) => {
+      // 1. Status filter
+      if (orderStatusFilter !== 'all' && o.paymentStatus !== orderStatusFilter) {
+        return false;
+      }
+
+      // 2. Search query filter
+      if (orderSearchQuery.trim()) {
+        const query = orderSearchQuery.toLowerCase().trim();
+        const matchInvoice = o.invoiceNumber?.toLowerCase().includes(query);
+        const matchName = o.customerName?.toLowerCase().includes(query);
+        const matchWhatsapp = o.customerWhatsapp?.toLowerCase().includes(query);
+        const matchEmail = o.customerEmail?.toLowerCase().includes(query);
+        const matchRoblox = o.robloxUsername ? o.robloxUsername.toLowerCase().includes(query) : false;
+        const matchItems = o.items.some(
+          (it) =>
+            it.product?.name?.toLowerCase().includes(query) ||
+            it.selectedVariant?.name?.toLowerCase().includes(query)
+        );
+
+        return matchInvoice || matchName || matchWhatsapp || matchEmail || matchRoblox || matchItems;
+      }
+
+      return true;
+    });
+  }, [orders, orderStatusFilter, orderSearchQuery]);
+
+  // Calculations for summary card: lifetime revenue and completed transactions
+  const completedOrders = useMemo(() => {
+    return orders.filter((o) => o.paymentStatus === 'paid');
+  }, [orders]);
+
+  const totalCompletedTransactions = completedOrders.length;
+
+  const totalLifetimeRevenue = useMemo(() => {
+    return completedOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
+  }, [completedOrders]);
+
+  const pendingOrders = useMemo(() => {
+    return orders.filter((o) => o.paymentStatus === 'pending');
+  }, [orders]);
+
+  const pendingRevenue = useMemo(() => {
+    return pendingOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
+  }, [pendingOrders]);
+
+  const averageOrderValue = useMemo(() => {
+    return totalCompletedTransactions > 0
+      ? Math.round(totalLifetimeRevenue / totalCompletedTransactions)
+      : 0;
+  }, [totalLifetimeRevenue, totalCompletedTransactions]);
+
   // Deleted orders audit log state & in-app confirmation modals (replaces blocked window.confirm)
   const [deletedOrders, setDeletedOrders] = useState<DeletedOrderLog[]>(() => getDeletedOrders());
   const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
@@ -106,11 +178,13 @@ export const AdminControlPanelModal: React.FC<AdminControlPanelModalProps> = ({
   const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
   const [logToDeletePermanently, setLogToDeletePermanently] = useState<DeletedOrderLog | null>(null);
 
-  // Sync deleted orders whenever modal opens
+  // Sync deleted orders whenever modal opens, and reset selection
   useEffect(() => {
     if (isOpen) {
       setDeletedOrders(getDeletedOrders());
       setIsAuthenticated(getAdminSession());
+      setSelectedOrderIds([]);
+      setShowBulkStatusDropdown(false);
     }
   }, [isOpen]);
 
@@ -158,6 +232,164 @@ export const AdminControlPanelModal: React.FC<AdminControlPanelModalProps> = ({
     setPasswordInput('');
     setPasswordError('');
     showToast('🔒 Berhasil keluar dari Control Panel Admin');
+  };
+
+  // Export current orders to CSV file for record-keeping
+  const handleExportOrdersToCSV = (onlySelected: boolean = false) => {
+    const targetOrders =
+      onlySelected && selectedOrderIds.length > 0
+        ? orders.filter((o) => selectedOrderIds.includes(o.id))
+        : orderSearchQuery.trim() || orderStatusFilter !== 'all'
+        ? filteredOrders
+        : orders;
+
+    if (!targetOrders || targetOrders.length === 0) {
+      showToast('⚠️ Belum ada data pesanan untuk diekspor.');
+      return;
+    }
+
+    const headers = [
+      'No Invoice',
+      'Tanggal & Waktu Pesanan',
+      'Status Pembayaran',
+      'Nama Pelanggan',
+      'No WhatsApp',
+      'Email Pelanggan',
+      'Daftar Produk & Varian',
+      'Total Belanja (Rp)',
+      'Diskon Promo / Kupon (Rp)',
+      'Poin Loyalitas Ditukar',
+      'Potongan Poin (Rp)',
+      'Reward Poin Transaksi',
+      'Metode Pembayaran',
+      'Username Roblox',
+      'Metode Roblox',
+      'Waktu Lunas',
+    ];
+
+    const escapeCSV = (val: string | number | null | undefined): string => {
+      if (val === null || val === undefined) return '""';
+      const str = String(val);
+      return `"${str.replace(/"/g, '""')}"`;
+    };
+
+    const rows = targetOrders.map((o) => {
+      const itemsText = o.items
+        .map((it) => `${it.product?.name || 'Produk'} (${it.selectedVariant?.name || 'Paket'}) x${it.quantity}`)
+        .join('; ');
+
+      const orderDate = new Date(o.createdAt).toLocaleString('id-ID', {
+        timeZone: 'Asia/Jakarta',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+
+      const paidDate = o.paidAt
+        ? new Date(o.paidAt).toLocaleString('id-ID', {
+            timeZone: 'Asia/Jakarta',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+          })
+        : '-';
+
+      const statusText =
+        o.paymentStatus === 'paid'
+          ? 'Lunas'
+          : o.paymentStatus === 'pending'
+          ? 'Menunggu Pembayaran'
+          : o.paymentStatus === 'cancelled'
+          ? 'Dibatalkan'
+          : 'Refund';
+
+      return [
+        escapeCSV(o.invoiceNumber),
+        escapeCSV(orderDate),
+        escapeCSV(statusText),
+        escapeCSV(o.customerName),
+        escapeCSV(o.customerWhatsapp),
+        escapeCSV(o.customerEmail),
+        escapeCSV(itemsText),
+        escapeCSV(o.totalAmount),
+        escapeCSV(o.discountAmount || 0),
+        escapeCSV(o.pointsRedeemed || 0),
+        escapeCSV(o.pointsDiscountAmount || 0),
+        escapeCSV(o.pointsEarned || 0),
+        escapeCSV(o.paymentMethod.toUpperCase()),
+        escapeCSV(o.robloxUsername || '-'),
+        escapeCSV(o.robloxMethod || '-'),
+        escapeCSV(paidDate),
+      ].join(',');
+    });
+
+    const csvContent = [headers.map((h) => `"${h}"`).join(','), ...rows].join('\r\n');
+
+    // Create Blob with UTF-8 BOM so Microsoft Excel & Google Sheets parse properly without encoding errors
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.href = url;
+    const nowStr = new Date().toISOString().slice(0, 10);
+    downloadAnchor.setAttribute('download', `rekap-pesanan-yuraa-store-${nowStr}.csv`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    document.body.removeChild(downloadAnchor);
+    URL.revokeObjectURL(url);
+
+    showToast(`✓ Berhasil mengunduh rekapan ${targetOrders.length} pesanan (.CSV)`);
+  };
+
+  // Toggle selection for a single order
+  const toggleSelectOrder = (orderId: string) => {
+    setSelectedOrderIds((prev) =>
+      prev.includes(orderId) ? prev.filter((id) => id !== orderId) : [...prev, orderId]
+    );
+  };
+
+  // Toggle select all visible/filtered orders
+  const toggleSelectAllOrders = () => {
+    const visibleIds = filteredOrders.map((o) => o.id);
+    if (visibleIds.length === 0) return;
+
+    const allVisibleSelected = visibleIds.every((id) => selectedOrderIds.includes(id));
+    if (allVisibleSelected) {
+      setSelectedOrderIds((prev) => prev.filter((id) => !visibleIds.includes(id)));
+    } else {
+      setSelectedOrderIds((prev) => Array.from(new Set([...prev, ...visibleIds])));
+    }
+  };
+
+  // Bulk update status of selected orders
+  const handleBulkUpdateStatus = (newStatus: 'pending' | 'paid' | 'cancelled' | 'refunded') => {
+    if (selectedOrderIds.length === 0) return;
+
+    if (onBulkUpdateOrderStatus) {
+      onBulkUpdateOrderStatus(selectedOrderIds, newStatus);
+    } else if (onUpdateOrderStatus) {
+      selectedOrderIds.forEach((id) => onUpdateOrderStatus(id, newStatus));
+    }
+
+    if (onOrdersChange) {
+      onOrdersChange();
+    }
+
+    const label =
+      newStatus === 'paid'
+        ? 'Lunas'
+        : newStatus === 'pending'
+        ? 'Pending'
+        : newStatus === 'cancelled'
+        ? 'Dibatalkan'
+        : 'Refund';
+
+    showToast(`✓ Berhasil memperbarui status ${selectedOrderIds.length} pesanan menjadi "${label}"`);
+    setSelectedOrderIds([]);
+    setShowBulkStatusDropdown(false);
   };
 
   const handleVerifyPassword = (e: React.FormEvent) => {
@@ -544,6 +776,84 @@ export const AdminControlPanelModal: React.FC<AdminControlPanelModalProps> = ({
         ) : (
           /* SCREEN 2: AUTHENTICATED ADMIN DASHBOARD */
           <>
+            {/* Top Summary Card: Total Lifetime Revenue & Completed Transactions */}
+            <div className="mt-3 shrink-0 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100/90 dark:from-[#111928] dark:to-[#0c1322] border border-slate-200 dark:border-slate-800 shadow-sm">
+              <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-slate-200/80 dark:border-slate-800/80">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                  <span className="text-[11px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    Ringkasan Finansial &amp; Transaksi Toko
+                  </span>
+                </div>
+                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                  Data Real-time ({orders.length} Pesanan)
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                {/* 1. Total Lifetime Revenue */}
+                <div className="p-3 rounded-xl bg-white dark:bg-[#162238] border border-slate-200/90 dark:border-slate-700/60 shadow-xs flex items-center justify-between gap-3">
+                  <div className="space-y-0.5 min-w-0">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
+                      Total Lifetime Revenue
+                    </span>
+                    <div className="text-lg sm:text-xl font-black text-emerald-600 dark:text-emerald-400 font-mono tracking-tight truncate">
+                      Rp {totalLifetimeRevenue.toLocaleString('id-ID')}
+                    </div>
+                    <p className="text-[10px] text-slate-400 truncate">
+                      Dari {totalCompletedTransactions} transaksi sukses terverifikasi
+                    </p>
+                  </div>
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/25">
+                    <Wallet className="w-5 h-5" />
+                  </div>
+                </div>
+
+                {/* 2. Total Completed Transactions */}
+                <div className="p-3 rounded-xl bg-white dark:bg-[#162238] border border-slate-200/90 dark:border-slate-700/60 shadow-xs flex items-center justify-between gap-3">
+                  <div className="space-y-0.5 min-w-0">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
+                      Transaksi Selesai (Completed)
+                    </span>
+                    <div className="text-lg sm:text-xl font-black text-blue-600 dark:text-blue-400 font-mono tracking-tight flex items-baseline gap-1.5">
+                      <span>{totalCompletedTransactions}</span>
+                      <span className="text-xs font-semibold text-slate-400 font-sans">
+                        / {orders.length} pesanan
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-slate-400 truncate">
+                      {orders.length > 0
+                        ? `${Math.round((totalCompletedTransactions / orders.length) * 100)}% sukses terverifikasi`
+                        : 'Belum ada transaksi'}
+                    </p>
+                  </div>
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/25">
+                    <CheckCircle className="w-5 h-5" />
+                  </div>
+                </div>
+
+                {/* 3. Average Order Value (AOV) & Pending Status */}
+                <div className="p-3 rounded-xl bg-white dark:bg-[#162238] border border-slate-200/90 dark:border-slate-700/60 shadow-xs flex items-center justify-between gap-3 sm:col-span-2 lg:col-span-1">
+                  <div className="space-y-0.5 min-w-0">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
+                      Rata-Rata Order (AOV)
+                    </span>
+                    <div className="text-lg sm:text-xl font-black text-purple-600 dark:text-purple-400 font-mono tracking-tight truncate">
+                      Rp {averageOrderValue.toLocaleString('id-ID')}
+                    </div>
+                    <p className="text-[10px] text-slate-400 truncate">
+                      {pendingOrders.length > 0
+                        ? `⏳ ${pendingOrders.length} pending (Rp ${pendingRevenue.toLocaleString('id-ID')})`
+                        : '✓ Semua pesanan telah diproses'}
+                    </p>
+                  </div>
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 border border-purple-500/25">
+                    <TrendingUp className="w-5 h-5" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Navigation Tabs */}
             <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 mt-3 shrink-0 overflow-x-auto no-scrollbar">
               <button
@@ -1090,6 +1400,20 @@ export const AdminControlPanelModal: React.FC<AdminControlPanelModalProps> = ({
               {/* TAB: GRAFIK PENJUALAN (RECHARTS ENGINE) */}
               {activeTab === 'analytics' && (
                 <div className="space-y-4">
+                  <div className="flex items-center justify-between pb-1 border-b border-slate-200 dark:border-slate-800">
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      Visualisasi &amp; Analitik Penjualan Harian
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleExportOrdersToCSV(false)}
+                      className="px-3 py-1.5 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
+                      title="Unduh seluruh data pesanan ke dalam file CSV untuk Excel / Spreadsheet"
+                    >
+                      <Download className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>Export CSV</span>
+                    </button>
+                  </div>
                   <DailySalesChart orders={orders} isDark={isDark} />
                 </div>
               )}
@@ -1097,44 +1421,261 @@ export const AdminControlPanelModal: React.FC<AdminControlPanelModalProps> = ({
               {/* TAB 3: PESANAN MASUK */}
               {activeTab === 'orders' && (
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                     <div>
                       <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                        Daftar Transaksi Pembeli ({orders.length})
+                        Daftar Transaksi Pembeli ({orderSearchQuery.trim() || orderStatusFilter !== 'all' ? `${filteredOrders.length} dari ${orders.length}` : orders.length})
                       </span>
                       <p className="text-[10px] text-slate-500">
                         {orders.filter((o) => o.paymentStatus === 'paid').length} Pesanan Lunas Terverifikasi via DANA
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab('analytics')}
-                      className="px-2.5 py-1.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/30 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
-                    >
-                      <BarChart3 className="w-3.5 h-3.5" />
-                      <span>Buka Grafik Penjualan</span>
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleExportOrdersToCSV(false)}
+                        className="px-3 py-1.5 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
+                        title="Unduh riwayat transaksi pembeli dalam format file CSV (.csv)"
+                      >
+                        <Download className="w-3.5 h-3.5 text-emerald-500" />
+                        <span>Export CSV</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('analytics')}
+                        className="px-2.5 py-1.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/30 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
+                      >
+                        <BarChart3 className="w-3.5 h-3.5" />
+                        <span>Grafik</span>
+                      </button>
+                    </div>
                   </div>
+
+                  {/* Search and Status Filter Controls */}
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-[#121929] border border-slate-200 dark:border-slate-800">
+                    <div className="sm:col-span-7 relative">
+                      <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <input
+                        type="text"
+                        value={orderSearchQuery}
+                        onChange={(e) => setOrderSearchQuery(e.target.value)}
+                        placeholder="Cari invoice, nama, no HP, email, atau Roblox..."
+                        className="w-full pl-9 pr-8 py-2 rounded-xl bg-white dark:bg-[#0a0f1d] border border-slate-300 dark:border-slate-700/80 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                      />
+                      {orderSearchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => setOrderSearchQuery('')}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                          title="Hapus pencarian"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="sm:col-span-5 flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <Filter className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <select
+                          value={orderStatusFilter}
+                          onChange={(e) => setOrderStatusFilter(e.target.value as any)}
+                          className="w-full pl-8 pr-7 py-2 rounded-xl bg-white dark:bg-[#0a0f1d] border border-slate-300 dark:border-slate-700/80 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer appearance-none transition-colors"
+                        >
+                          <option value="all">Semua Status ({orders.length})</option>
+                          <option value="paid">✓ Lunas ({orders.filter((o) => o.paymentStatus === 'paid').length})</option>
+                          <option value="pending">⏳ Pending ({orders.filter((o) => o.paymentStatus === 'pending').length})</option>
+                          <option value="cancelled">✕ Dibatalkan ({orders.filter((o) => o.paymentStatus === 'cancelled').length})</option>
+                          <option value="refunded">↺ Refunded ({orders.filter((o) => o.paymentStatus === 'refunded').length})</option>
+                        </select>
+                        <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
+
+                      {(orderSearchQuery || orderStatusFilter !== 'all') && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOrderSearchQuery('');
+                            setOrderStatusFilter('all');
+                          }}
+                          className="px-2.5 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[11px] font-bold transition-colors cursor-pointer shrink-0"
+                          title="Reset pencarian & filter"
+                        >
+                          Reset
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Selection & Bulk Actions Toolbar */}
+                  {orders.length > 0 && (
+                    <div className="p-3 rounded-2xl bg-slate-100 dark:bg-[#121929] border border-slate-200 dark:border-slate-800/80 flex flex-wrap items-center justify-between gap-2.5">
+                      {/* Select All Checkbox */}
+                      <label className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={
+                            filteredOrders.length > 0 &&
+                            filteredOrders.every((o) => selectedOrderIds.includes(o.id))
+                          }
+                          onChange={toggleSelectAllOrders}
+                          disabled={filteredOrders.length === 0}
+                          className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 cursor-pointer accent-blue-600 shrink-0 disabled:opacity-50"
+                        />
+                        <span>
+                          {filteredOrders.length > 0 &&
+                          filteredOrders.every((o) => selectedOrderIds.includes(o.id))
+                            ? 'Batal Pilih Semua'
+                            : `Pilih Semua (${filteredOrders.length})`}
+                        </span>
+                      </label>
+
+                      {/* Bulk Actions when any item is checked */}
+                      {selectedOrderIds.length > 0 ? (
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="px-2.5 py-1 rounded-lg bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30 text-xs font-bold font-mono">
+                            {selectedOrderIds.length} Terpilih
+                          </span>
+
+                          {/* Bulk Update Status Dropdown Button */}
+                          <div className="relative">
+                            <button
+                              type="button"
+                              onClick={() => setShowBulkStatusDropdown(!showBulkStatusDropdown)}
+                              className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-blue-600/25 active:scale-95 transition-all cursor-pointer"
+                            >
+                              <CheckCheck className="w-3.5 h-3.5" />
+                              <span>Bulk Update Status</span>
+                              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showBulkStatusDropdown ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {showBulkStatusDropdown && (
+                              <div className="absolute right-0 mt-2 w-52 rounded-2xl bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700/80 shadow-2xl z-30 p-1.5 text-xs animate-in fade-in zoom-in-95 duration-100">
+                                <div className="px-2 py-1 border-b border-slate-100 dark:border-slate-800 mb-1">
+                                  <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+                                    Ubah Status Ke:
+                                  </span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => handleBulkUpdateStatus('paid')}
+                                  className="w-full text-left px-2.5 py-2 rounded-xl hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-2 transition-colors cursor-pointer"
+                                >
+                                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+                                  <span>Set LUNAS / SELESAI</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleBulkUpdateStatus('pending')}
+                                  className="w-full text-left px-2.5 py-2 rounded-xl hover:bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold flex items-center gap-2 transition-colors cursor-pointer"
+                                >
+                                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
+                                  <span>Set PENDING</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleBulkUpdateStatus('cancelled')}
+                                  className="w-full text-left px-2.5 py-2 rounded-xl hover:bg-slate-500/10 text-slate-600 dark:text-slate-400 font-bold flex items-center gap-2 transition-colors cursor-pointer"
+                                >
+                                  <span className="w-2.5 h-2.5 rounded-full bg-slate-400 shrink-0"></span>
+                                  <span>Set DIBATALKAN</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleBulkUpdateStatus('refunded')}
+                                  className="w-full text-left px-2.5 py-2 rounded-xl hover:bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold flex items-center gap-2 transition-colors cursor-pointer"
+                                >
+                                  <span className="w-2.5 h-2.5 rounded-full bg-purple-500 shrink-0"></span>
+                                  <span>Set REFUNDED</span>
+                                </button>
+                              </div>
+                            )}
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleExportOrdersToCSV(true)}
+                            className="px-2.5 py-1.5 rounded-xl bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                            title="Unduh hanya pesanan yang dicentang ke CSV"
+                          >
+                            <Download className="w-3 h-3" />
+                            <span>Export Terpilih</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedOrderIds([]);
+                              setShowBulkStatusDropdown(false);
+                            }}
+                            className="px-2.5 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-colors cursor-pointer"
+                          >
+                            Batal
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-[11px] text-slate-500 italic">
+                          Centang pesanan untuk ubah status massal sekaligus
+                        </span>
+                      )}
+                    </div>
+                  )}
 
                   {orders.length === 0 ? (
                     <div className="p-8 text-center text-xs text-slate-400 space-y-2">
                       <ShoppingBag className="w-8 h-8 mx-auto text-slate-500" />
                       <p>Belum ada transaksi pesanan yang masuk.</p>
                     </div>
+                  ) : filteredOrders.length === 0 ? (
+                    <div className="p-8 text-center text-xs text-slate-400 space-y-3 bg-slate-50 dark:bg-[#121929] rounded-2xl border border-slate-200 dark:border-slate-800">
+                      <Search className="w-8 h-8 mx-auto text-slate-400 opacity-60" />
+                      <div>
+                        <p className="font-semibold text-slate-700 dark:text-slate-300">
+                          Tidak ada pesanan yang sesuai dengan filter
+                        </p>
+                        <p className="text-[11px] text-slate-500 mt-1">
+                          Coba ubah kata kunci pencarian atau ganti status filter pembayaran.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOrderSearchQuery('');
+                          setOrderStatusFilter('all');
+                        }}
+                        className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md transition-all cursor-pointer inline-flex items-center gap-1.5"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        <span>Reset Filter &amp; Pencarian</span>
+                      </button>
+                    </div>
                   ) : (
-                    orders.map((o) => (
+                    filteredOrders.map((o) => (
                       <div
                         key={o.id}
-                        className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#121929] border border-slate-200 dark:border-slate-800 space-y-2"
+                        className={`p-3.5 rounded-2xl transition-all duration-150 space-y-2 border ${
+                          selectedOrderIds.includes(o.id)
+                            ? 'bg-blue-50/70 dark:bg-blue-950/30 border-blue-500/60 dark:border-blue-500/60 shadow-md shadow-blue-500/5'
+                            : 'bg-slate-50 dark:bg-[#121929] border-slate-200 dark:border-slate-800'
+                        }`}
                       >
                         <div className="flex items-center justify-between text-xs">
-                          <div>
-                            <span className="font-mono font-bold text-blue-600 dark:text-blue-400">
-                              {o.invoiceNumber}
-                            </span>
-                            <span className="text-slate-500 ml-2">
-                              {formatDateTime(o.createdAt)}
-                            </span>
+                          <div className="flex items-center gap-2.5">
+                            <input
+                              type="checkbox"
+                              checked={selectedOrderIds.includes(o.id)}
+                              onChange={() => toggleSelectOrder(o.id)}
+                              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 cursor-pointer accent-blue-600 shrink-0"
+                              title="Pilih transaksi ini"
+                            />
+                            <div>
+                              <span className="font-mono font-bold text-blue-600 dark:text-blue-400">
+                                {o.invoiceNumber}
+                              </span>
+                              <span className="text-slate-500 ml-2">
+                                {formatDateTime(o.createdAt)}
+                              </span>
+                            </div>
                           </div>
                           <span
                             className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${

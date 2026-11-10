@@ -82,12 +82,12 @@ Tersedia 3 metode pilihan resmi & aman:
 🛡️ **1. Robux Via Link Gamepass (HANYA USERNAME)**:
 • Tidak butuh password sama sekali! 100% aman anti hack.
 • Pajak resmi 30% ditanggung toko, Robux bersih masuk ke akun!
-• Harga: 500 R$ (Rp 35.500) s/d 5.000 R$ (Rp 363.000).
+• Harga: 500 R$ (Rp 44.900) s/d 5.000 R$ (Rp 399.900).
 
 ⚡ **2. Robux Via Login Kilat (Username & Pw)**:
 • Langsung masuk akun tanpa repot bikin gamepass.
 • Sandi dienkripsi & langsung dihapus otomatis setelah pengisian.
-• Harga: 500 R$ (Rp 39.500) s/d 5.000 R$ (Rp 377.000).
+• Harga: 500 R$ (Rp 49.900) s/d 5.000 R$ (Rp 409.900).
 
 ⭐ **3. Roblox Subs Premium**:
 • Dapatkan badge Premium resmi di avatar, bonus 10% Robux extra tiap belanja game, dan benefit trading!

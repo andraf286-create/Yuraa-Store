@@ -726,6 +726,30 @@ export default function App() {
             }
           }
         }}
+        onBulkUpdateOrderStatus={(orderIds, status) => {
+          const idSet = new Set(orderIds);
+          const updated = orders.map((o) => (idSet.has(o.id) ? { ...o, paymentStatus: status } : o));
+          setOrders(updated);
+          localStorage.setItem('yuraa_user_orders', JSON.stringify(updated));
+
+          if (status === 'paid') {
+            const newlyPaid = orders.filter((o) => idSet.has(o.id) && o.paymentStatus !== 'paid');
+            if (newlyPaid.length > 0) {
+              const lastPaid = newlyPaid[newlyPaid.length - 1];
+              setEmailSentToast({
+                id: `toast-${Date.now()}`,
+                email: lastPaid.customerEmail,
+                invoiceNumber: lastPaid.invoiceNumber,
+                customerName: lastPaid.customerName,
+                itemsSummary:
+                  newlyPaid.length > 1
+                    ? `${newlyPaid.length} Pesanan Berhasil Diupdate Lunas`
+                    : lastPaid.items.map((i) => i.product.name).join(', '),
+                isRoblox: Boolean(lastPaid.robloxUsername || lastPaid.items.some((i) => i.product.category === 'game')),
+              });
+            }
+          }
+        }}
       />
 
       {/* Visual Toast Notification for Email Credentials Delivery */}

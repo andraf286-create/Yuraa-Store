@@ -22,11 +22,13 @@ import {
   ThumbsUp,
   MessageSquareQuote,
   Send,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { Product, ProductVariant, UserProfile } from '../types';
 import { BrandIcon } from './BrandIcon';
 import { STORE_INFO } from '../data/products';
 import { formatRupiah } from '../utils/formatters';
+import { PANDA_ASSETS } from '../utils/assets';
 
 interface ProductDetailPageProps {
   product: Product;
@@ -106,6 +108,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const [showRobloxPassword, setShowRobloxPassword] = useState(false);
   const [robloxGamepassUrl, setRobloxGamepassUrl] = useState('');
   const [showGamepassGuide, setShowGamepassGuide] = useState(false);
+  const [showPriceListPoster, setShowPriceListPoster] = useState(false);
 
   // Promo countdown timer (e.g. 02 : 03 : 18)
   const [timeLeft, setTimeLeft] = useState({ hours: 2, minutes: 3, seconds: 18 });
@@ -449,7 +452,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                     {product.id === 'roblox-gamepass' && <Check className="w-3.5 h-3.5 text-emerald-400" />}
                   </div>
                   <span className="text-[10px] text-neutral-400 block mt-0.5">Hanya username (Tanpa Sandi)</span>
-                  <span className="text-[10px] font-bold text-emerald-400 font-mono mt-1 block">Mulai Rp 35.500</span>
+                  <span className="text-[10px] font-bold text-emerald-400 font-mono mt-1 block">Mulai Rp 44.900</span>
                 </button>
 
                 <button
@@ -468,7 +471,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                     {product.id === 'roblox-login' && <Check className="w-3.5 h-3.5 text-amber-400" />}
                   </div>
                   <span className="text-[10px] text-neutral-400 block mt-0.5">Butuh username &amp; Pw</span>
-                  <span className="text-[10px] font-bold text-amber-400 font-mono mt-1 block">Mulai Rp 39.500</span>
+                  <span className="text-[10px] font-bold text-amber-400 font-mono mt-1 block">Mulai Rp 49.900</span>
                 </button>
 
                 <button
@@ -490,6 +493,29 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   <span className="text-[10px] font-bold text-purple-300 font-mono mt-1 block">Mulai Rp 50.000</span>
                 </button>
               </div>
+
+              {/* Toggle to view official image price list flyer from user */}
+              <div className="mt-3 pt-3 border-t border-neutral-800/80 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setShowPriceListPoster(!showPriceListPoster)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 text-xs font-bold transition-all cursor-pointer"
+                >
+                  <ImageIcon className="w-3.5 h-3.5 text-purple-400" />
+                  <span>{showPriceListPoster ? 'Tutup Gambar Brosur' : '🖼️ Lihat Brosur Pricelist Resmi'}</span>
+                </button>
+                <span className="text-[10px] text-neutral-400 font-mono">100% Legal &amp; Anti Banned</span>
+              </div>
+
+              {showPriceListPoster && (
+                <div className="mt-3 p-2 rounded-2xl bg-black/80 border border-purple-500/40 animate-in fade-in duration-200">
+                  <img
+                    src={PANDA_ASSETS.robuxPriceListBanner}
+                    alt="Daftar Harga Robux YuraaStore Resmi"
+                    className="w-full max-h-[500px] object-contain rounded-xl mx-auto shadow-2xl"
+                  />
+                </div>
+              )}
             </div>
           </div>
         )}
