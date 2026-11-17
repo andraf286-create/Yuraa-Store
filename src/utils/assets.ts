@@ -11,5 +11,5 @@ export const PANDA_ASSETS = {
   fastRunning: '/assets/images/panda_fast_running_1793197079011.jpg',
 
   // Official Roblox Pricelist Poster
-  robuxPriceListBanner: '/assets/aistudio/1794279682713_05dca0dd.jpg',
+  robuxPriceListBanner: '/assets/aistudio/1794958521955_a48d1b44.jpg',
 };

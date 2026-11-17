@@ -452,7 +452,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                     {product.id === 'roblox-gamepass' && <Check className="w-3.5 h-3.5 text-emerald-400" />}
                   </div>
                   <span className="text-[10px] text-neutral-400 block mt-0.5">Hanya username (Tanpa Sandi)</span>
-                  <span className="text-[10px] font-bold text-emerald-400 font-mono mt-1 block">Mulai Rp 44.900</span>
+                  <span className="text-[10px] font-bold text-emerald-400 font-mono mt-1 block">Mulai Rp 84.900</span>
                 </button>
 
                 <button
@@ -471,7 +471,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                     {product.id === 'roblox-login' && <Check className="w-3.5 h-3.5 text-amber-400" />}
                   </div>
                   <span className="text-[10px] text-neutral-400 block mt-0.5">Butuh username &amp; Pw</span>
-                  <span className="text-[10px] font-bold text-amber-400 font-mono mt-1 block">Mulai Rp 49.900</span>
+                  <span className="text-[10px] font-bold text-amber-400 font-mono mt-1 block">Mulai Rp 94.900</span>
                 </button>
 
                 <button

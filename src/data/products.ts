@@ -18,8 +18,8 @@ export const PRODUCTS_DATA: Product[] = [
     name: 'Robux Via Link Gamepass',
     category: 'game',
     categoryLabel: 'Top Up & Akun Game',
-    price: 44900,
-    originalPrice: 55000,
+    price: 84900,
+    originalPrice: 99000,
     soldCount: 5410,
     stockCount: 999,
     isTrending: true,
@@ -40,22 +40,22 @@ Top up robux nggak perlu nunggu sampai 5 hari baru masuk, Top up di kami hanya p
 ✅ Pajak Gamepass 30% ditanggung toko (Robux bersih masuk sesuai pesanan)
 
 📋 DAFTAR HARGA ROBUX VIA LINK / GAMEPASS:
-• 500 R$ : Rp 44.900
-• 700 R$ : Rp 59.900
-• 1000 R$ : Rp 79.900
-• 1250 R$ : Rp 99.900
-• 1500 R$ : Rp 114.900
-• 2000 R$ : Rp 154.900
-• 2500 R$ : Rp 184.900
-• 3000 R$ : Rp 229.900
-• 4000 R$ : Rp 319.900
-• 5000 R$ : Rp 399.900
+• 500 R$ : Rp 84.900
+• 700 R$ : Rp 119.900
+• 1000 R$ : Rp 164.900
+• 1250 R$ : Rp 209.900
+• 1500 R$ : Rp 249.900
+• 2000 R$ : Rp 334.900
+• 2500 R$ : Rp 419.900
+• 3000 R$ : Rp 499.900
+• 4000 R$ : Rp 669.900
+• 5000 R$ : Rp 839.900
 
 📌 CARA ORDER:
 1. Pilih nominal Robux yang diinginkan
 2. Masukkan Username Roblox Anda (tanpa password)
 3. Buat gamepass di akun Roblox sesuai harga nominal yang diarahkan
-4. Lakukan pembayaran via DANA atau QRIS
+4. Lakukan pembayaran via DANA
 5. Robux langsung dikirim kilat dalam 5 menit!`,
     features: [
       'HANYA USERNAME (TANPA PASSWORD APAPUN)',
@@ -69,16 +69,16 @@ Top up robux nggak perlu nunggu sampai 5 hari baru masuk, Top up di kami hanya p
       'Kirim bukti transfer ke WhatsApp Yuraa Store'
     ],
     variants: [
-      { id: 'rbx-gp-500', name: '500 R$ (Via Gamepass)', price: 44900, originalPrice: 55000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 500 Robux' },
-      { id: 'rbx-gp-700', name: '700 R$ (Via Gamepass)', price: 59900, originalPrice: 75000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 700 Robux' },
-      { id: 'rbx-gp-1000', name: '1000 R$ (Via Gamepass)', price: 79900, originalPrice: 95000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 1.000 Robux' },
-      { id: 'rbx-gp-1250', name: '1250 R$ (Via Gamepass)', price: 99900, originalPrice: 120000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 1.250 Robux' },
-      { id: 'rbx-gp-1500', name: '1500 R$ (Via Gamepass)', price: 114900, originalPrice: 140000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 1.500 Robux' },
-      { id: 'rbx-gp-2000', name: '2000 R$ (Via Gamepass)', price: 154900, originalPrice: 185000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 2.000 Robux' },
-      { id: 'rbx-gp-2500', name: '2500 R$ (Via Gamepass)', price: 184900, originalPrice: 220000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 2.500 Robux' },
-      { id: 'rbx-gp-3000', name: '3000 R$ (Via Gamepass)', price: 229900, originalPrice: 270000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 3.000 Robux' },
-      { id: 'rbx-gp-4000', name: '4000 R$ (Via Gamepass)', price: 319900, originalPrice: 380000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 4.000 Robux' },
-      { id: 'rbx-gp-5000', name: '5000 R$ (Via Gamepass)', price: 399900, originalPrice: 470000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 5.000 Robux' }
+      { id: 'rbx-gp-500', name: '500 R$ (Via Gamepass)', price: 84900, originalPrice: 99000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 500 Robux' },
+      { id: 'rbx-gp-700', name: '700 R$ (Via Gamepass)', price: 119900, originalPrice: 139000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 700 Robux' },
+      { id: 'rbx-gp-1000', name: '1000 R$ (Via Gamepass)', price: 164900, originalPrice: 190000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 1.000 Robux' },
+      { id: 'rbx-gp-1250', name: '1250 R$ (Via Gamepass)', price: 209900, originalPrice: 240000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 1.250 Robux' },
+      { id: 'rbx-gp-1500', name: '1500 R$ (Via Gamepass)', price: 249900, originalPrice: 285000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 1.500 Robux' },
+      { id: 'rbx-gp-2000', name: '2000 R$ (Via Gamepass)', price: 334900, originalPrice: 380000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 2.000 Robux' },
+      { id: 'rbx-gp-2500', name: '2500 R$ (Via Gamepass)', price: 419900, originalPrice: 475000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 2.500 Robux' },
+      { id: 'rbx-gp-3000', name: '3000 R$ (Via Gamepass)', price: 499900, originalPrice: 565000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 3.000 Robux' },
+      { id: 'rbx-gp-4000', name: '4000 R$ (Via Gamepass)', price: 669900, originalPrice: 750000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 4.000 Robux' },
+      { id: 'rbx-gp-5000', name: '5000 R$ (Via Gamepass)', price: 839900, originalPrice: 940000, stock: 999, durationDays: 1, description: 'Hanya username • Bersih 5.000 Robux' }
     ]
   },
   {
@@ -86,8 +86,8 @@ Top up robux nggak perlu nunggu sampai 5 hari baru masuk, Top up di kami hanya p
     name: 'Robux Via Login Kilat',
     category: 'game',
     categoryLabel: 'Top Up & Akun Game',
-    price: 49900,
-    originalPrice: 60000,
+    price: 94900,
+    originalPrice: 110000,
     soldCount: 3820,
     stockCount: 999,
     isTrending: true,
@@ -107,16 +107,16 @@ Top up robux nggak perlu nunggu sampai 5 hari baru masuk, Top up di kami hanya p
 ✅ Password aman terenkripsi & data langsung dibersihkan setelah transaksi selesai
 
 📋 DAFTAR HARGA ROBUX VIA LOGIN:
-• 500 R$ : Rp 49.900
-• 700 R$ : Rp 69.900
-• 1000 R$ : Rp 89.900
-• 1250 R$ : Rp 109.900
-• 1500 R$ : Rp 129.900
-• 2000 R$ : Rp 169.900
-• 2500 R$ : Rp 209.900
-• 3000 R$ : Rp 249.900
-• 4000 R$ : Rp 329.900
-• 5000 R$ : Rp 409.900
+• 500 R$ : Rp 94.900
+• 700 R$ : Rp 129.900
+• 1000 R$ : Rp 179.900
+• 1250 R$ : Rp 224.900
+• 1500 R$ : Rp 269.900
+• 2000 R$ : Rp 359.900
+• 2500 R$ : Rp 449.900
+• 3000 R$ : Rp 539.900
+• 4000 R$ : Rp 719.900
+• 5000 R$ : Rp 899.900
 
 📌 CARA ORDER:
 1. Pilih nominal Robux yang diinginkan
@@ -135,16 +135,16 @@ Top up robux nggak perlu nunggu sampai 5 hari baru masuk, Top up di kami hanya p
       'Konfirmasi ke WhatsApp jika memiliki proteksi PIN orang tua'
     ],
     variants: [
-      { id: 'rbx-lg-500', name: '500 R$ (Via Login)', price: 49900, originalPrice: 60000, stock: 999, durationDays: 1, description: 'Via Login • 500 Robux langsung masuk' },
-      { id: 'rbx-lg-700', name: '700 R$ (Via Login)', price: 69900, originalPrice: 85000, stock: 999, durationDays: 1, description: 'Via Login • 700 Robux langsung masuk' },
-      { id: 'rbx-lg-1000', name: '1000 R$ (Via Login)', price: 89900, originalPrice: 110000, stock: 999, durationDays: 1, description: 'Via Login • 1.000 Robux langsung masuk' },
-      { id: 'rbx-lg-1250', name: '1250 R$ (Via Login)', price: 109900, originalPrice: 130000, stock: 999, durationDays: 1, description: 'Via Login • 1.250 Robux langsung masuk' },
-      { id: 'rbx-lg-1500', name: '1500 R$ (Via Login)', price: 129900, originalPrice: 155000, stock: 999, durationDays: 1, description: 'Via Login • 1.500 Robux langsung masuk' },
-      { id: 'rbx-lg-2000', name: '2000 R$ (Via Login)', price: 169900, originalPrice: 200000, stock: 999, durationDays: 1, description: 'Via Login • 2.000 Robux langsung masuk' },
-      { id: 'rbx-lg-2500', name: '2500 R$ (Via Login)', price: 209900, originalPrice: 250000, stock: 999, durationDays: 1, description: 'Via Login • 2.500 Robux langsung masuk' },
-      { id: 'rbx-lg-3000', name: '3000 R$ (Via Login)', price: 249900, originalPrice: 290000, stock: 999, durationDays: 1, description: 'Via Login • 3.000 Robux langsung masuk' },
-      { id: 'rbx-lg-4000', name: '4000 R$ (Via Login)', price: 329900, originalPrice: 390000, stock: 999, durationDays: 1, description: 'Via Login • 4.000 Robux langsung masuk' },
-      { id: 'rbx-lg-5000', name: '5000 R$ (Via Login)', price: 409900, originalPrice: 480000, stock: 999, durationDays: 1, description: 'Via Login • 5.000 Robux langsung masuk' }
+      { id: 'rbx-lg-500', name: '500 R$ (Via Login)', price: 94900, originalPrice: 110000, stock: 999, durationDays: 1, description: 'Via Login • 500 Robux langsung masuk' },
+      { id: 'rbx-lg-700', name: '700 R$ (Via Login)', price: 129900, originalPrice: 150000, stock: 999, durationDays: 1, description: 'Via Login • 700 Robux langsung masuk' },
+      { id: 'rbx-lg-1000', name: '1000 R$ (Via Login)', price: 179900, originalPrice: 205000, stock: 999, durationDays: 1, description: 'Via Login • 1.000 Robux langsung masuk' },
+      { id: 'rbx-lg-1250', name: '1250 R$ (Via Login)', price: 224900, originalPrice: 255000, stock: 999, durationDays: 1, description: 'Via Login • 1.250 Robux langsung masuk' },
+      { id: 'rbx-lg-1500', name: '1500 R$ (Via Login)', price: 269900, originalPrice: 305000, stock: 999, durationDays: 1, description: 'Via Login • 1.500 Robux langsung masuk' },
+      { id: 'rbx-lg-2000', name: '2000 R$ (Via Login)', price: 359900, originalPrice: 405000, stock: 999, durationDays: 1, description: 'Via Login • 2.000 Robux langsung masuk' },
+      { id: 'rbx-lg-2500', name: '2500 R$ (Via Login)', price: 449900, originalPrice: 505000, stock: 999, durationDays: 1, description: 'Via Login • 2.500 Robux langsung masuk' },
+      { id: 'rbx-lg-3000', name: '3000 R$ (Via Login)', price: 539900, originalPrice: 605000, stock: 999, durationDays: 1, description: 'Via Login • 3.000 Robux langsung masuk' },
+      { id: 'rbx-lg-4000', name: '4000 R$ (Via Login)', price: 719900, originalPrice: 805000, stock: 999, durationDays: 1, description: 'Via Login • 4.000 Robux langsung masuk' },
+      { id: 'rbx-lg-5000', name: '5000 R$ (Via Login)', price: 899900, originalPrice: 995000, stock: 999, durationDays: 1, description: 'Via Login • 5.000 Robux langsung masuk' }
     ]
   },
   {
